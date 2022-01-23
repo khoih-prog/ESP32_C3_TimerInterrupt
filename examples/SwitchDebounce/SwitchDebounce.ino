@@ -16,19 +16,6 @@
   The accuracy is nearly perfect compared to software timers. The most important feature is they're ISR-based timers
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
-
-  Based on SimpleTimer - A timer library for Arduino.
-  Author: mromani@ottotecnica.com
-  Copyright (c) 2010 OTTOTECNICA Italy
-
-  Based on BlynkTimer.h
-  Author: Volodymyr Shymanskyy
-
-  Version: 1.4.0
-
-  Version Modified By   Date      Comments
-  ------- -----------  ---------- -----------
-  1.4.0   K Hoang      29/07/2021 Initial coding. Sync with ESP32_S2_TimerInterrupt v1.4.0
 *****************************************************************************************************************************/
 /*
    Notes:
@@ -41,34 +28,35 @@
    If your data is multiple variables, such as an array and a count, usually interrupts need to be disabled
    or the entire sequence of your code which accesses the data.
 
-   Switch Debouncing uses high frequency hardware timer 50Hz == 20ms) to measure the time from the SW is pressed,
-   debouncing time is 100ms => SW is considered pressed if timer count is > 5, then call / flag SW is pressed
-   When the SW is released, timer will count (debounce) until more than 50ms until consider SW is released.
-   We can set to flag or call a function whenever SW is pressed more than certain predetermined time, even before
-   SW is released.
+   This example will demonstrate the nearly perfect accuracy compared to software timers by printing the actual elapsed millisecs.
+   Being ISR-based timers, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet
+   and Blynk services. You can also have many (up to 16) timers to use.
+   This non-being-blocked important feature is absolutely necessary for mission-critical tasks.
+   You'll see blynkTimer is blocked while connecting to WiFi / Internet / Blynk, and elapsed time is very unaccurate
+   In this super simple example, you don't see much different after Blynk is connected, because of no competing task is
+   written
 */
 
 #if !( ARDUINO_ESP32C3_DEV )
   #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
 #endif
 
-// These define's must be placed at the beginning before #include "ESP32_C3_TimerInterrupt.h"
-// _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
-// Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can crash or hang the system.
-#define TIMER_INTERRUPT_DEBUG         1
-#define _TIMERINTERRUPT_LOGLEVEL_     1
+//These define's must be placed at the beginning before #include "TimerInterrupt.h"
+// Don't define TIMER_INTERRUPT_DEBUG > 2. Only for special ISR debugging only. Can hang the system.
+#define TIMER_INTERRUPT_DEBUG      1
 
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "ESP32_C3_TimerInterrupt.h"
 
-#define PIN_D1           1        // Pin D1 mapped to pin GPIO1/ADC1_0 of ESP32-C3
+// Don't use PIN_D1 in core v2.0.0 and v2.0.1. Check https://github.com/espressif/arduino-esp32/issues/5868
+#define PIN_D2              2         // Pin D2 mapped to pin GPIO2/ADC12/TOUCH2/LED_BUILTIN of ESP32
+#define PIN_D4              4         // Pin D4 mapped to pin GPIO4/ADC10/TOUCH0 of ESP32
 
-unsigned int SWPin = PIN_D1;
+unsigned int SWPin = PIN_D4;
 
 #define TIMER1_INTERVAL_MS        20
 #define DEBOUNCING_INTERVAL_MS    100
 #define LONG_PRESS_INTERVAL_MS    5000
-
-#define LOCAL_DEBUG               2
 
 // Init ESP32 timer 1
 ESP32Timer ITimer1(1);
@@ -76,22 +64,31 @@ ESP32Timer ITimer1(1);
 volatile bool SWPressed     = false;
 volatile bool SWLongPressed = false;
 
-void IRAM_ATTR TimerHandler1(void * timerNo)
+volatile uint64_t lastSWPressedTime     = 0;
+volatile uint64_t lastSWLongPressedTime = 0;
+
+volatile bool lastSWPressedNoted     = true;
+volatile bool lastSWLongPressedNoted = true;
+
+void IRAM_ATTR lastSWPressedMS()
 {
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32-C3 before processing ISR
-  TIMER_ISR_START(timerNo);
-  /////////////////////////////////////////////////////////
-  
+  lastSWPressedTime   = millis();
+  lastSWPressedNoted  = false;
+}
+
+void IRAM_ATTR lastSWLongPressedMS()
+{
+  lastSWLongPressedTime   = millis();
+  lastSWLongPressedNoted  = false;
+}
+
+// With core v2.0.0+, you can't use Serial.print/println in ISR or crash.
+// and you can't use float calculation inside ISR
+// Only OK in core v1.0.6-
+bool IRAM_ATTR TimerHandler1(void * timerNo)
+{ 
   static unsigned int debounceCountSWPressed  = 0;
   static unsigned int debounceCountSWReleased = 0;
-
-#if (LOCAL_DEBUG > 1)
-  static unsigned long SWPressedTime;
-  static unsigned long SWReleasedTime;
-
-  unsigned long currentMillis = millis();
-#endif
 
   if ( (!digitalRead(SWPin)) )
   {
@@ -103,16 +100,11 @@ void IRAM_ATTR TimerHandler1(void * timerNo)
       // Call and flag SWPressed
       if (!SWPressed)
       {
-#if (LOCAL_DEBUG > 1)   
-        SWPressedTime = currentMillis;
-        
-        Serial.print("SW Press, from millis() = "); Serial.println(SWPressedTime);
-#endif
-
         SWPressed = true;
         // Do something for SWPressed here in ISR
         // But it's better to use outside software timer to do your job instead of inside ISR
         //Your_Response_To_Press();
+        lastSWPressedMS();
       }
 
       if (debounceCountSWPressed >= LONG_PRESS_INTERVAL_MS / TIMER1_INTERVAL_MS)
@@ -120,16 +112,11 @@ void IRAM_ATTR TimerHandler1(void * timerNo)
         // Call and flag SWLongPressed
         if (!SWLongPressed)
         {
-#if (LOCAL_DEBUG > 1)
-          Serial.print("SW Long Pressed, total time ms = "); Serial.print(currentMillis);
-          Serial.print(" - "); Serial.print(SWPressedTime);
-          Serial.print(" = "); Serial.println(currentMillis - SWPressedTime);                                           
-#endif
-
           SWLongPressed = true;
           // Do something for SWLongPressed here in ISR
           // But it's better to use outside software timer to do your job instead of inside ISR
           //Your_Response_To_Long_Press();
+          lastSWLongPressedMS();
         }
       }
     }
@@ -139,13 +126,6 @@ void IRAM_ATTR TimerHandler1(void * timerNo)
     // Start debouncing counting debounceCountSWReleased and clear debounceCountSWPressed
     if ( SWPressed && (++debounceCountSWReleased >= DEBOUNCING_INTERVAL_MS / TIMER1_INTERVAL_MS))
     {
-#if (LOCAL_DEBUG > 1)      
-      SWReleasedTime = currentMillis;
-
-      // Call and flag SWPressed
-      Serial.print("SW Released, from millis() = "); Serial.println(SWReleasedTime);
-#endif
-
       SWPressed     = false;
       SWLongPressed = false;
 
@@ -154,19 +134,11 @@ void IRAM_ATTR TimerHandler1(void * timerNo)
       //Your_Response_To_Release();
 
       // Call and flag SWPressed
-#if (LOCAL_DEBUG > 1)
-      Serial.print("SW Pressed total time ms = ");
-      Serial.println(SWReleasedTime - SWPressedTime);
-#endif
-
       debounceCountSWPressed = 0;
     }
   }
 
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32-C3 after processing ISR
-  TIMER_ISR_END(timerNo);
-  /////////////////////////////////////////////////////////
+  return true;
 }
 
 void setup()
@@ -197,5 +169,17 @@ void setup()
 
 void loop()
 {
+  if (!lastSWPressedNoted)
+  {
+    lastSWPressedNoted = true;
+    Serial.print(F("lastSWPressed @ millis() = ")); Serial.println(lastSWPressedTime);
+  }
 
+  if (!lastSWLongPressedNoted)
+  {
+    lastSWLongPressedNoted = true;
+    Serial.print(F("lastSWLongPressed @ millis() = ")); Serial.println(lastSWLongPressedTime);
+  }
+
+  delay(500);
 }

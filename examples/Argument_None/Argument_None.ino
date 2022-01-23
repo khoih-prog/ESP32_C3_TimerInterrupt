@@ -16,21 +16,7 @@
   The accuracy is nearly perfect compared to software timers. The most important feature is they're ISR-based timers
   Therefore, their executions are not blocked by bad-behaving functions / tasks.
   This important feature is absolutely necessary for mission-critical tasks.
-
-  Based on SimpleTimer - A timer library for Arduino.
-  Author: mromani@ottotecnica.com
-  Copyright (c) 2010 OTTOTECNICA Italy
-
-  Based on BlynkTimer.h
-  Author: Volodymyr Shymanskyy
-
-  Version: 1.4.0
-
-  Version Modified By   Date      Comments
-  ------- -----------  ---------- -----------
-  1.4.0   K Hoang      29/07/2021 Initial coding. Sync with ESP32_S2_TimerInterrupt v1.4.0
 *****************************************************************************************************************************/
-
 /*
    Notes:
    Special design is necessary to share data between interrupt code and the rest of your program.
@@ -41,80 +27,64 @@
    if the interrupt changes a multi-byte variable between a sequence of instructions, it can be read incorrectly.
    If your data is multiple variables, such as an array and a count, usually interrupts need to be disabled
    or the entire sequence of your code which accesses the data.
+
+   This example will demonstrate the nearly perfect accuracy compared to software timers by printing the actual elapsed millisecs.
+   Being ISR-based timers, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet
+   and Blynk services. You can also have many (up to 16) timers to use.
+   This non-being-blocked important feature is absolutely necessary for mission-critical tasks.
+   You'll see blynkTimer is blocked while connecting to WiFi / Internet / Blynk, and elapsed time is very unaccurate
+   In this super simple example, you don't see much different after Blynk is connected, because of no competing task is
+   written
 */
 
 #if !( ARDUINO_ESP32C3_DEV )
   #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
 #endif
 
-// These define's must be placed at the beginning before #include "ESP32_C3_TimerInterrupt.h"
+// These define's must be placed at the beginning before #include "TimerInterrupt_Generic.h"
 // _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
 // Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define TIMER_INTERRUPT_DEBUG         1
+#define TIMER_INTERRUPT_DEBUG         0
 #define _TIMERINTERRUPT_LOGLEVEL_     4
 
+// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
 #include "ESP32_C3_TimerInterrupt.h"
 
 #ifndef LED_BUILTIN
-#define LED_BUILTIN       2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
+  #define LED_BUILTIN       2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
 #endif
 
-#define PIN_D1            1         // Pin D1 mapped to pin GPIO1 of ESP32_C3
+#define PIN_D1            1         // Pin D1 mapped to pin GPIO1 of ESP32-S2
 
-
-void IRAM_ATTR TimerHandler0(void * timerNo)
-{
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32_C3 before processing ISR
-  TIMER_ISR_START(timerNo);
-  /////////////////////////////////////////////////////////
-  
+bool IRAM_ATTR TimerHandler0(void * timerNo)
+{ 
   static bool toggle0 = false;
   static bool started = false;
-
-#if (TIMER_INTERRUPT_DEBUG > 0)
-  Serial.print("ITimer0: millis() = "); Serial.println(millis());
-#endif
 
   //timer interrupt toggles pin LED_BUILTIN
   digitalWrite(LED_BUILTIN, toggle0);
   toggle0 = !toggle0;
-
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32_C3 after processing ISR
-  TIMER_ISR_END(timerNo);
-  /////////////////////////////////////////////////////////
+  
+  return true;
 }
 
-void IRAM_ATTR TimerHandler1(void * timerNo)
+bool IRAM_ATTR TimerHandler1(void * timerNo)
 {
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32-S2 before processing ISR
-  TIMER_ISR_START(timerNo);
-  /////////////////////////////////////////////////////////
-
   static bool toggle1 = false;
   static bool started = false;
-  
-#if (TIMER_INTERRUPT_DEBUG > 0)
-  Serial.print("ITimer1: millis() = "); Serial.println(millis());
-#endif
 
   //timer interrupt toggles outputPin
   digitalWrite(PIN_D1, toggle1);
   toggle1 = !toggle1;
 
-  /////////////////////////////////////////////////////////
-  // Always call this for ESP32-S2 after processing ISR
-  TIMER_ISR_END(timerNo);
-  /////////////////////////////////////////////////////////
+  return true;
 }
 
 #define TIMER0_INTERVAL_MS        1000
 
 #define TIMER1_INTERVAL_MS        5000
 
-// Init ESP32_C3 timer 0 and 1
+// Init ESP32 timer 0 and 1
 ESP32Timer ITimer0(0);
 ESP32Timer ITimer1(1);
 
@@ -145,6 +115,7 @@ void setup()
   else
     Serial.println(F("Can't set ITimer0. Select another Timer, freq. or timer"));
 
+
   // Interval in microsecs
   if (ITimer1.attachInterruptInterval(TIMER1_INTERVAL_MS * 1000, TimerHandler1))
   //if (ITimer1.attachInterrupt(2, TimerHandler1))
@@ -152,7 +123,7 @@ void setup()
     Serial.print(F("Starting  ITimer1 OK, millis() = ")); Serial.println(millis());
   }
   else
-    Serial.println(F("Can't set ITimer1. Select another Timer, freq. or timer"));   
+    Serial.println(F("Can't set ITimer1. Select another Timer, freq. or timer"));
 }
 
 void loop()
