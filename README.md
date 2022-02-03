@@ -1,55 +1,58 @@
-# ESP32_C3_TimerInterrupt Library
+# ESP32_ISR_Servo Library
 
-[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32_C3_TimerInterrupt.svg?)](https://www.ardu-badge.com/ESP32_C3_TimerInterrupt)
-[![GitHub release](https://img.shields.io/github/release/khoih-prog/ESP32_C3_TimerInterrupt.svg)](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/releases)
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/blob/master/LICENSE)
+[![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32_ISR_Servo.svg?)](https://www.ardu-badge.com/ESP32_ISR_Servo)
+[![GitHub release](https://img.shields.io/github/release/khoih-prog/ESP32_ISR_Servo.svg)](https://github.com/khoih-prog/ESP32_ISR_Servo/releases)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/khoih-prog/ESP32_ISR_Servo/blob/master/LICENSE)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#Contributing)
-[![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP32_C3_TimerInterrupt.svg)](http://github.com/khoih-prog/ESP32_C3_TimerInterrupt/issues)
+[![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP32_ISR_Servo.svg)](http://github.com/khoih-prog/ESP32_ISR_Servo/issues)
 
 <a href="https://www.buymeacoffee.com/khoihprog6" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
 
 ---
 ---
 
 ## Table of Contents
 
-* [Important Change from v1.5.0](#Important-Change-from-v150)
-* [Why do we need this ESP32_C3_TimerInterrupt library](#why-do-we-need-this-ESP32_C3_TimerInterrupt-library)
+* [Why do we need this ESP32_ISR_Servo library](#why-do-we-need-this-esp32_isr_servo-library)
   * [Features](#features)
-  * [Why using ISR-based Hardware Timer Interrupt is better](#why-using-isr-based-hardware-timer-interrupt-is-better)
+  * [Important Notes about using ISR](#important-notes-about-using-isr)
   * [Currently supported Boards](#currently-supported-boards)
-  * [Important Notes about ISR](#important-notes-about-isr)
-* [Changelog](changelog.md)
+* [Changelog](#changelog)
+  * [Releases v1.1.0](#releases-v110)
+  * [Releases v1.0.2](#releases-v102)
+  * [Releases v1.0.1](#releases-v101)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
   * [Use Arduino Library Manager](#use-arduino-library-manager)
   * [Manual Install](#manual-install)
   * [VS Code & PlatformIO](#vs-code--platformio)
-* [Note for Platform IO using ESP32 LittleFS](#note-for-platform-io-using-esp32-littlefs)
-* [HOWTO Fix `Multiple Definitions` Linker Error](#howto-fix-multiple-definitions-linker-error)
 * [HOWTO Use analogRead() with ESP32 running WiFi and/or BlueTooth (BT/BLE)](#howto-use-analogread-with-esp32-running-wifi-andor-bluetooth-btble)
   * [1. ESP32 has 2 ADCs, named ADC1 and ADC2](#1--esp32-has-2-adcs-named-adc1-and-adc2)
   * [2. ESP32 ADCs functions](#2-esp32-adcs-functions)
   * [3. ESP32 WiFi uses ADC2 for WiFi functions](#3-esp32-wifi-uses-adc2-for-wifi-functions)
 * [More useful Information](#more-useful-information)
-* [How to use](#how-to-use)
+  * [ESP32 Hardware Timers](#esp32-hardware-timers)
+  * [New functions](#new-functions)
+  * [What special in this ESP32_ISR_Servo library](#what-special-in-this-esp32_isr_servo-library)
+* [HOWTO Usage](#howto-usage)
 * [Examples](#examples)
-  * [  1. Argument_None](examples/Argument_None)
-  * [  2. Change_Interval](examples/Change_Interval).
-  * [  3. RPM_Measure](examples/RPM_Measure)
-  * [  4. SwitchDebounce](examples/SwitchDebounce)
-  * [  5. TimerInterruptTest](examples/TimerInterruptTest)
-  * [  6. ISR_16_Timers_Array](examples/ISR_16_Timers_Array)
-  * [  7. ISR_16_Timers_Array_Complex](examples/ISR_16_Timers_Array_Complex)
-  * [  8. **multiFileProject**](examples/multiFileProject) **New**
-* [Example TimerInterruptTest](#example-timerinterrupttest)
+  * [ 1. **ESP32_BlynkServoControl**](examples/ESP32_BlynkServoControl)
+  * [ 2. ESP32_ISR_MultiServos](examples/ESP32_ISR_MultiServos)
+  * [ 3. ESP32_MultipleRandomServos](examples/ESP32_MultipleRandomServos)
+  * [ 4. ESP32_MultipleServos](examples/ESP32_MultipleServos)
+  * [ 5. ISR_MultiServos](examples/ISR_MultiServos)
+  * [ 6. MultipleRandomServos](examples/MultipleRandomServos)
+  * [ 7. MultipleServos](examples/MultipleServos)
+* [Example ESP32_BlynkServoControl](#example-esp32_blynkservocontrol)
+  * [1. File ESP32_BlynkServoControl.ino](#1-file-esp32_blynkservocontrolino)
 * [Debug Terminal Output Samples](#debug-terminal-output-samples)
-  * [1. ISR_16_Timers_Array_Complex on ESP32C3_DEV](#1-isr_16_timers_array_complex-on-esp32c3_dev)
-  * [2. TimerInterruptTest on ESP32C3_DEV](#2-timerinterrupttest-on-esp32c3_dev)
-  * [3. Change_Interval on ESP32C3_DEV](#3-change_interval-on-esp32c3_dev)
-  * [4. Argument_None on ESP32C3_DEV](#4-argument_none-on-esp32c3_dev)
+  * [1. ESP32_BlynkServoControl using LITTLEFS without SSL on ESP32_DEV](#1-esp32_blynkservocontrol-using-littlefs-without-ssl-on-esp32_dev)
+  * [2. ESP32_MultipleRandomServos on ESP32_DEV](#2-esp32_multiplerandomservos-on-esp32_dev)
+  * [3. ESP32_ISR_MultiServos on ESP32_DEV](#3-esp32_isr_multiservos-on-esp32_dev)
 * [Debug](#debug)
 * [Troubleshooting](#troubleshooting)
+* [Releases](#releases)
 * [Issues](#issues)
 * [TO DO](#to-do)
 * [DONE](#done)
@@ -58,69 +61,70 @@
 * [License](#license)
 * [Copyright](#copyright)
 
----
----
-
-### Important Change from v1.5.0
-
-Please have a look at [HOWTO Fix `Multiple Definitions` Linker Error](#howto-fix-multiple-definitions-linker-error)
-
-### Why do we need this [ESP32_C3_TimerInterrupt library](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt)
-
-## Features
-
-This library enables you to use Interrupt from Hardware Timers on an ESP32_C3-based board.
-
-The ESP32_C3 timer Interrupt control is different from that of ESP32, at least with the ESP32_C3 core v2.0.0-rc1. While the examples of current [ESP32TimerInterrupt library](https://github.com/khoih-prog/ESP32TimerInterrupt) can be compiled OK, they can't run yet. That's why this new [ESP32_C3_TimerInterrupt library](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt) has been created.
 
 ---
+---
 
-As **Hardware Timers are rare, and very precious assets** of any board, this library now enables you to use up to **16 ISR-based Timers, while consuming only 1 Hardware Timer**. Timers' interval is very long (**ulong millisecs**).
+### Why do we need this [ESP32_ISR_Servo library](https://github.com/khoih-prog/ESP32_ISR_Servo)
 
-Now with these new **16 ISR-based timers**, the maximum interval is **practically unlimited** (limited only by unsigned long miliseconds) while **the accuracy is nearly perfect** compared to software timers. 
+#### Features
 
-The most important feature is they're ISR-based timers. Therefore, their executions are **not blocked by bad-behaving functions / tasks**. This important feature is absolutely necessary for mission-critical tasks. 
+Imagine you have a system with a **mission-critical function** controlling a **robot arm** or doing something much more important. You normally use a software timer to poll, or even place the function in loop(). But what if another function is blocking the loop() or setup().
 
-The [**ISR_Timer_Complex**](examples/ISR_Timer_Complex) example will demonstrate the nearly perfect accuracy compared to software timers by printing the actual elapsed millisecs of each type of timers.
-
-Being ISR-based timers, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet and Blynk services. You can also have many `(up to 16)` timers to use.
-
-This non-being-blocked important feature is absolutely necessary for mission-critical tasks.
-
-You'll see blynkTimer Software is blocked while system is connecting to WiFi / Internet / Blynk, as well as by blocking task 
-in loop(), using delay() function as an example. The elapsed time then is very unaccurate
-
-### Why using ISR-based Hardware Timer Interrupt is better
-
-Imagine you have a system with a **mission-critical** function, measuring water level and control the sump pump or doing something much more important. You normally use a software timer to poll, or even place the function in loop(). But what if another function is **blocking** the loop() or setup().
-
-So your function **might not be executed, and the result would be disastrous.**
+So your function might not be executed, and the result would be disastrous.
 
 You'd prefer to have your function called, no matter what happening with other functions (busy loop, bug, etc.).
 
-The correct choice is to use a Hardware Timer with **Interrupt** to call your function.
+The correct choice is to use a **Hardware Timer with Interrupt** to call your function.
 
-These hardware timers, using interrupt, still work even if other functions are blocking. Moreover, they are much more **precise** (certainly depending on clock frequency accuracy) than other software timers using millis() or micros(). That's necessary if you need to measure some data requiring better accuracy.
+These hardware timers, using interrupt, still work even if other functions are blocking. Moreover, they are **much more precise** (certainly depending on clock frequency accuracy) than other software timers using millis() or micros(). That's necessary if you need to measure some data requiring better accuracy.
 
-Functions using normal software timers, relying on loop() and calling millis(), won't work if the loop() or setup() is blocked by certain operation. For example, certain function is blocking while it's connecting to WiFi or some services.
+Functions using normal software timers, relying on loop() and calling millis(), won't work if the **loop() or setup() is blocked by certain operation**. For example, certain function is blocking while it's connecting to WiFi or some services.
 
-The catch is **your function is now part of an ISR (Interrupt Service Routine), and must be lean / mean, and follow certain rules.** More to read on:
+This library enables you to use `1 Hardware Timer` on an ESP32-based board to control up to `16 independent servo motors`.
 
-[**HOWTO Attach Interrupt**](https://www.arduino.cc/reference/en/language/functions/external-interrupts/attachinterrupt/)
 
----
+#### Important Notes about using ISR
 
-### Currently supported Boards
-
-1. ESP32_C3-based boards, such as ESP32C3_DEV, etc
-
----
-
-### Important Notes about ISR
-
-1. Inside the attached function, **delay() won’t work and the value returned by millis() will not increment.** Serial data received while in the function may be lost. You should declare as **volatile any variables that you modify within the attached function.**
+1. Inside the attached function, delay() won’t work and the value returned by millis() will not increment. Serial data received while in the function may be lost. You should declare as volatile any variables that you modify within the attached function.
 
 2. Typically global variables are used to pass data between an ISR and the main program. To make sure variables shared between an ISR and the main program are updated correctly, declare them as volatile.
+
+3. Avoid using Serial.print()-related functions inside ISR. Just for temporary debug purpose, but even this also can crash the system any time. Beware.
+
+4. Your functions are now part of **ISR (Interrupt Service Routine)**, and must be `lean / mean`, and follow certain rules. More to read on:
+
+[HOWTO Attach Interrupt](https://www.arduino.cc/reference/en/language/functions/external-interrupts/attachinterrupt/)
+
+
+#### Currently supported Boards
+
+This [**BlynkESP32_BT_WF** library](https://github.com/khoih-prog/BlynkESP32_BT_WF) currently supports these following boards:
+
+ 1. **ESP32-based boards**.
+ 
+---
+---
+
+## Changelog
+
+### Releases v1.1.0
+
+1. Fix bug. See [Fixed count >= min comparison for servo enable](https://github.com/khoih-prog/ESP32_ISR_Servo/pull/1)
+2. Clean-up all compiler warnings possible.
+3. Add Table of Contents
+4. Add Version String
+5. Fix and Optimize old examples
+
+#### Releases v1.0.2
+
+1. Add example using [Blynk](http://docs.blynk.cc/) to control servos. 
+2. Change example names to avoid duplication.
+
+#### Releases v1.0.1
+
+1. Basic 16 ISR-based servo controllers using 1 hardware timer for ESP32.
+
 
 ---
 ---
@@ -128,90 +132,32 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ## Prerequisites
 
 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
-2. [`ESP32 Core 2.0.2+`](https://github.com/espressif/arduino-esp32) for ESP32-S2-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
-3. To use with certain example
-   - [`SimpleTimer library`](https://github.com/jfturcot/SimpleTimer) for [ISR_16_Timers_Array](examples/ISR_16_Timers_Array) and [ISR_16_Timers_Array_Complex](examples/ISR_16_Timers_Array_Complex) examples.
-   
-   
----
+2. [`ESP32 core 2.0.2+`](https://github.com/espressif/arduino-esp32/releases) for ESP32 boards
+
 ---
 
 ## Installation
 
 ### Use Arduino Library Manager
 
-The best and easiest way is to use `Arduino Library Manager`. Search for [**ESP32_C3_TimerInterrupt**](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt), then select / install the latest version.
-You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32_C3_TimerInterrupt.svg?)](https://www.ardu-badge.com/ESP32_C3_TimerInterrupt) for more detailed instructions.
+The best and easiest way is to use `Arduino Library Manager`. Search for `ESP32_ISR_Servo`, then select / install the latest version.
+You can also use this link [![arduino-library-badge](https://www.ardu-badge.com/badge/ESP32_ISR_Servo.svg?)](https://www.ardu-badge.com/ESP32_ISR_Servo) for more detailed instructions.
 
 ### Manual Install
 
 Another way to install is to:
 
-1. Navigate to [**ESP32_C3_TimerInterrupt**](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt) page.
-2. Download the latest release `ESP32_C3_TimerInterrupt-master.zip`.
-3. Extract the zip file to `ESP32_C3_TimerInterrupt-master` directory 
-4. Copy whole `ESP32_C3_TimerInterrupt-master` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
+1. Navigate to [ESP32_ISR_Servo](https://github.com/khoih-prog/ESP32_ISR_Servo) page.
+2. Download the latest release `ESP32_ISR_Servo-master.zip`.
+3. Extract the zip file to `ESP32_ISR_Servo-master` directory 
+4. Copy whole `ESP32_ISR_Servo-master` folder to Arduino libraries' directory such as `~/Arduino/libraries/`.
 
 ### VS Code & PlatformIO
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
-3. Install [**ESP32_C3_TimerInterrupt** library](https://platformio.org/lib/show/12622/ESP32_C3_TimerInterrupt) by using [Library Manager](https://platformio.org/lib/show/12622/ESP32_C3_TimerInterrupt/installation). Search for **ESP32_C3_TimerInterrupt** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
+3. Install [**ESP32_ISR_Servo** library](https://platformio.org/lib/show/11639/ESP32_ISR_Servo) by using [Library Manager](https://platformio.org/lib/show/11639/ESP32_ISR_Servo/installation). Search for **ESP32_ISR_Servo** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
-
-
----
----
-
-### Note for Platform IO using ESP32 LittleFS
-
-#### Necessary only for esp32 core v1.0.6-
-
-From esp32 core v1.0.6+, [`LittleFS_esp32 v1.0.6`](https://github.com/lorol/LITTLEFS) has been included and this step is not necessary anymore.
-
-In Platform IO, to fix the error when using [`LittleFS_esp32 v1.0`](https://github.com/lorol/LITTLEFS) for ESP32-based boards with ESP32 core v1.0.4- (ESP-IDF v3.2-), uncomment the following line
-
-from
-
-```
-//#define CONFIG_LITTLEFS_FOR_IDF_3_2   /* For old IDF - like in release 1.0.4 */
-```
-
-to
-
-```
-#define CONFIG_LITTLEFS_FOR_IDF_3_2   /* For old IDF - like in release 1.0.4 */
-```
-
-It's advisable to use the latest [`LittleFS_esp32 v1.0.5+`](https://github.com/lorol/LITTLEFS) to avoid the issue.
-
-Thanks to [Roshan](https://github.com/solroshan) to report the issue in [Error esp_littlefs.c 'utime_p'](https://github.com/khoih-prog/ESPAsync_WiFiManager/issues/28) 
-
----
----
-
-### HOWTO Fix `Multiple Definitions` Linker Error
-
-The current library implementation, using `xyz-Impl.h` instead of standard `xyz.cpp`, possibly creates certain `Multiple Definitions` Linker error in certain use cases.
-
-You can include these `.hpp` or `.h` files
-
-```
-// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
-#include "ESP32_C3_TimerInterrupt.h"     //https://github.com/khoih-prog/ESP32_C3_TimerInterrupt
-
-// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
-#include "ESP32_C3_ISR_Timer.hpp"         //https://github.com/khoih-prog/ESP32_C3_TimerInterrupt
-```
-
-in many files. But be sure to use the following `.h` file **in just 1 `.h`, `.cpp` or `.ino` file**, which must **not be included in any other file**, to avoid `Multiple Definitions` Linker Error
-
-```
-// To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
-#include "ESP32_C3_ISR_Timer.h"           //https://github.com/khoih-prog/ESP32_C3_TimerInterrupt
-```
-
-Check the new [**multiFileProject** example](examples/multiFileProject) for a `HOWTO` demo.
 
 ---
 ---
@@ -257,71 +203,141 @@ Look in file [**adc_common.c**](https://github.com/espressif/esp-idf/blob/master
 
 ## More useful Information
 
-The ESP32_C3 has two timer groups, each one with only one general purpose hardware timer.  All the timers are based on 64 bits counters and 16 bit prescalers. 
+### ESP32 Hardware Timers
 
-The timer counters can be configured to count up or down and support automatic reload and software reload.
+  - **The ESP32 has two timer groups, each one with two general purpose hardware timers.**
+  - All the timers are based on **64-bit counters and 16-bit prescalers.**
+  - The timer counters can be configured to count up or down and support automatic reload and software reload.
+  - They can also generate alarms when they reach a specific value, defined by the software. 
+  - The value of the counter can be read by the software program.
+  
 
-They can also generate alarms when they reach a specific value, defined by the software. The value of the counter can be read by 
-the software program.
-
----
-
-Now with these new `16 ISR-based timers` (while consuming only **1 hardware timer**), the maximum interval is practically unlimited (limited only by unsigned long miliseconds). The accuracy is nearly perfect compared to software timers. The most important feature is they're ISR-based timers Therefore, their executions are not blocked by bad-behaving functions / tasks.
-This important feature is absolutely necessary for mission-critical tasks. 
-
-The `ISR_Timer_Complex` example will demonstrate the nearly perfect accuracy compared to software timers by printing the actual elapsed millisecs of each type of timers.
-Being ISR-based timers, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet and Blynk services. You can also have many `(up to 16)` timers to use.
-This non-being-blocked important feature is absolutely necessary for mission-critical tasks. 
-You'll see blynkTimer Software is blocked while system is connecting to WiFi / Internet / Blynk, as well as by blocking task 
-in loop(), using delay() function as an example. The elapsed time then is very unaccurate
-
----
----
-
-## How to use
-
-Before using any Timer, you have to make sure the Timer has not been used by any other purpose.
-
-`Timer0, Timer1` are supported for ESP32_C3.
-
-Using as follows:
+### New functions
 
 ```
-// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
-#include "ESP32_C3_TimerInterrupt.h"
+// returns last position in degrees if success, or -1 on wrong servoIndex
+int getPosition(unsigned servoIndex);
 
-// Init ESP32_C3 timer 0 and 1
-ESP32Timer ITimer0(0);
-ESP32Timer ITimer1(1);
+// returns pulseWidth in microsecs (within min/max range) if success, or 0 on wrong servoIndex
+unsigned int getPulseWidth(unsigned servoIndex);
+```
+
+### What special in this [ESP32_ISR_Servo library](https://github.com/khoih-prog/ESP32_ISR_Servo)
+
+Now these new **16 ISR-based Servo controllers** just use one ESP32 Hardware Timer. The number 16 is just arbitrarily chosen, and depending on application, you can increase that number to 32, 48, etc. without problem.
+
+The accuracy is nearly perfect compared to software timers. The most important feature is they're ISR-based timers
+
+Therefore, their executions are not blocked by bad-behaving functions / tasks. This important feature is absolutely necessary for mission-critical tasks. 
+
+The [**MultipleServos**](examples/MultipleServos) example, which controls 6 servos independently, will demonstrate the nearly perfect accuracy.
+Being ISR-based servo controllers, their executions are not blocked by bad-behaving functions / tasks, such as connecting to WiFi, Internet and Blynk services.
+
+This non-being-blocked important feature is absolutely necessary for mission-critical tasks.
+
+You'll see blynkTimer Software is blocked while system is connecting to WiFi / Internet / Blynk, as well as by blocking task in loop(), using delay() function as an example. The elapsed time then is very unaccurate
+
+---
+---
+
+## HOWTO Usage
+
+How to use:
+
+```
+#ifndef ESP32
+  #error This code is designed to run on ESP32 platform, not Arduino nor ESP8266! Please check your Tools->Board setting.
+#endif
+
+#define TIMER_INTERRUPT_DEBUG       1
+#define ISR_SERVO_DEBUG             1
+
+// Select different ESP32 timer number (0-3) to avoid conflict
+#define USE_ESP32_TIMER_NO          3
+
+#include "ESP32_ISR_Servo.h"
+
+#define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
+#define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
+
+// Published values for SG90 servos; adjust if needed
+#define MIN_MICROS      800  //544
+#define MAX_MICROS      2450
+
+int servoIndex1  = -1;
+int servoIndex2  = -1;
 
 void setup()
 {
   Serial.begin(115200);
   while (!Serial);
+
+  delay(200);
+
+  Serial.print(F("\nStarting ISR_MultiServos on ")); Serial.println(ARDUINO_BOARD);
+  Serial.println(ESP32_ISR_SERVO_VERSION);
   
-  delay(100);
-  ...
+  //Select ESP32 timer USE_ESP32_TIMER_NO
+  ESP32_ISR_Servos.useTimer(USE_ESP32_TIMER_NO);
 
-  // Using ESP32  => 80 / 160 / 240MHz CPU clock ,
-  // For 64-bit timer counter
-  // For 16-bit timer prescaler up to 1024
+  servoIndex1 = ESP32_ISR_Servos.setupServo(PIN_D25, MIN_MICROS, MAX_MICROS);
+  servoIndex2 = ESP32_ISR_Servos.setupServo(PIN_D26, MIN_MICROS, MAX_MICROS);
 
-  // Interval in microsecs
-  if (ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler0))
-  {
-    Serial.print(F("Starting  ITimer0 OK, millis() = ")); Serial.println(millis());
-  }
+  if (servoIndex1 != -1)
+    Serial.println(F("Setup Servo1 OK"));
   else
-    Serial.println(F("Can't set ITimer0. Select another freq. or timer"));
+    Serial.println(F("Setup Servo1 failed"));
 
-  // Interval in microsecs
-  if (ITimer1.attachInterruptInterval(TIMER1_INTERVAL_MS * 1000, TimerHandler1))
-  {
-    Serial.print(F("Starting  ITimer1 OK, millis() = ")); Serial.println(millis());
-  }
+  if (servoIndex2 != -1)
+    Serial.println(F("Setup Servo2 OK"));
   else
-    Serial.println(F("Can't set ITimer1. Select another freq. or timer"));
+    Serial.println(F("Setup Servo2 failed"));
 }
+
+void loop()
+{
+  int position;
+
+  if ( ( servoIndex1 != -1) && ( servoIndex2 != -1) )
+  {
+    for (position = 0; position <= 180; position++)
+    {
+      // goes from 0 degrees to 180 degrees
+      // in steps of 1 degree
+
+      if (position % 30 == 0)
+      {
+        Serial.print(F("Servo1 pos = ")); Serial.print(position);
+        Serial.print(F(", Servo2 pos = ")); Serial.println(180 - position);
+      }
+
+      ESP32_ISR_Servos.setPosition(servoIndex1, position);
+      ESP32_ISR_Servos.setPosition(servoIndex2, 180 - position);
+      // waits 30ms for the servo to reach the position
+      delay(30);
+    }
+    
+    delay(5000);
+
+    for (position = 180; position >= 0; position--)
+    {
+      // goes from 180 degrees to 0 degrees
+      if (position % 30 == 0)
+      {
+        Serial.print(F("Servo1 pos = ")); Serial.print(position);
+        Serial.print(F(", Servo2 pos = ")); Serial.println(180 - position);
+      }
+
+      ESP32_ISR_Servos.setPosition(servoIndex1, position);
+      ESP32_ISR_Servos.setPosition(servoIndex2, 180 - position);
+      // waits 30ms for the servo to reach the position
+      delay(30);
+    }
+    
+    delay(5000);
+  }
+}
+
 ```
 
 ---
@@ -329,156 +345,204 @@ void setup()
 
 ### Examples: 
 
- 1. [Argument_None](examples/Argument_None)
- 2. [RPM_Measure](examples/RPM_Measure)
- 3. [SwitchDebounce](examples/SwitchDebounce)
- 4. [TimerInterruptTest](examples/TimerInterruptTest)
- 5. [**Change_Interval**](examples/Change_Interval).
- 6. [**ISR_16_Timers_Array**](examples/ISR_16_Timers_Array)
- 7. [**ISR_16_Timers_Array_Complex**](examples/ISR_16_Timers_Array_Complex)
- 8. [**multiFileProject**](examples/multiFileProject). **New**
-
----
+ 1. [ESP32_BlynkServoControl](examples/ESP32_BlynkServoControl)
+ 2. [ESP32_ISR_MultiServos](examples/ESP32_ISR_MultiServos)
+ 3. [ESP32_MultipleRandomServos](examples/ESP32_MultipleRandomServos) 
+ 4. [ESP32_MultipleServos](examples/ESP32_MultipleServos) 
+ 5. [ISR_MultiServos](examples/ISR_MultiServos)
+ 6. [MultipleRandomServos](examples/MultipleRandomServos)
+ 7. [MultipleServos](examples/MultipleServos)
+ 
 ---
 
-### Example [TimerInterruptTest](examples/TimerInterruptTest)
+### Example [ESP32_BlynkServoControl](examples/ESP32_BlynkServoControl)
 
-```
-#if !( ARDUINO_ESP32C3_DEV )
-  #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
-#endif
 
-// These define's must be placed at the beginning before #include "TimerInterrupt_Generic.h"
-// _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
-// Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define TIMER_INTERRUPT_DEBUG         0
-#define _TIMERINTERRUPT_LOGLEVEL_     4
+#### 1. File [ESP32_BlynkServoControl.ino](examples/ESP32_BlynkServoControl/ESP32_BlynkServoControl.ino)
 
-// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
-#include "ESP32_C3_TimerInterrupt.h"
+```cpp
+#include "defines.h"
+#include "Credentials.h"
+#include "dynamicParams.h"
 
-#ifndef LED_BUILTIN
-  #define LED_BUILTIN       2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
-#endif
+//See file .../hardware/espressif/esp32/variants/(esp32|doitESP32devkitV1)/pins_arduino.h
+#define LED_BUILTIN       2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
+#define PIN_LED           2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
 
-// Don't use PIN_D1 in core v2.0.0 and v2.0.1. Check https://github.com/espressif/arduino-esp32/issues/5868
-#define PIN_D2              2         // Pin D2 mapped to pin GPIO2/ADC12/TOUCH2/LED_BUILTIN of ESP32
-#define PIN_D3              3         // Pin D3 mapped to pin GPIO3/RX0 of ESP32
+#define PIN_D0            0         // Pin D0 mapped to pin GPIO0/BOOT/ADC11/TOUCH1 of ESP32
+#define PIN_D1            1         // Pin D1 mapped to pin GPIO1/TX0 of ESP32
+#define PIN_D2            2         // Pin D2 mapped to pin GPIO2/ADC12/TOUCH2 of ESP32
+#define PIN_D3            3         // Pin D3 mapped to pin GPIO3/RX0 of ESP32
+#define PIN_D4            4         // Pin D4 mapped to pin GPIO4/ADC10/TOUCH0 of ESP32
+#define PIN_D5            5         // Pin D5 mapped to pin GPIO5/SPISS/VSPI_SS of ESP32
+#define PIN_D6            6         // Pin D6 mapped to pin GPIO6/FLASH_SCK of ESP32
+#define PIN_D7            7         // Pin D7 mapped to pin GPIO7/FLASH_D0 of ESP32
+#define PIN_D8            8         // Pin D8 mapped to pin GPIO8/FLASH_D1 of ESP32
+#define PIN_D9            9         // Pin D9 mapped to pin GPIO9/FLASH_D2 of ESP32
 
-// With core v2.0.0+, you can't use Serial.print/println in ISR or crash.
-// and you can't use float calculation inside ISR
-// Only OK in core v1.0.6-
-bool IRAM_ATTR TimerHandler0(void * timerNo)
-{ 
-  static bool toggle0 = false;
+#define PIN_D10           10        // Pin D10 mapped to pin GPIO10/FLASH_D3 of ESP32
+#define PIN_D11           11        // Pin D11 mapped to pin GPIO11/FLASH_CMD of ESP32
+#define PIN_D12           12        // Pin D12 mapped to pin GPIO12/HSPI_MISO/ADC15/TOUCH5/TDI of ESP32
+#define PIN_D13           13        // Pin D13 mapped to pin GPIO13/HSPI_MOSI/ADC14/TOUCH4/TCK of ESP32
+#define PIN_D14           14        // Pin D14 mapped to pin GPIO14/HSPI_SCK/ADC16/TOUCH6/TMS of ESP32
+#define PIN_D15           15        // Pin D15 mapped to pin GPIO15/HSPI_SS/ADC13/TOUCH3/TDO of ESP32
+#define PIN_D16           16        // Pin D16 mapped to pin GPIO16/TX2 of ESP32
+#define PIN_D17           17        // Pin D17 mapped to pin GPIO17/RX2 of ESP32     
+#define PIN_D18           18        // Pin D18 mapped to pin GPIO18/VSPI_SCK of ESP32
+#define PIN_D19           19        // Pin D19 mapped to pin GPIO19/VSPI_MISO of ESP32
 
-  //timer interrupt toggles pin LED_BUILTIN
-  digitalWrite(LED_BUILTIN, toggle0);
-  toggle0 = !toggle0;
+#define PIN_D21           21        // Pin D21 mapped to pin GPIO21/SDA of ESP32
+#define PIN_D22           22        // Pin D22 mapped to pin GPIO22/SCL of ESP32
+#define PIN_D23           23        // Pin D23 mapped to pin GPIO23/VSPI_MOSI of ESP32
+#define PIN_D24           24        // Pin D24 mapped to pin GPIO24 of ESP32
+#define PIN_D25           25        // Pin D25 mapped to pin GPIO25/ADC18/DAC1 of ESP32
+#define PIN_D26           26        // Pin D26 mapped to pin GPIO26/ADC19/DAC2 of ESP32
+#define PIN_D27           27        // Pin D27 mapped to pin GPIO27/ADC17/TOUCH7 of ESP32     
 
-  return true;
+#define PIN_D32           32        // Pin D32 mapped to pin GPIO32/ADC4/TOUCH9 of ESP32
+#define PIN_D33           33        // Pin D33 mapped to pin GPIO33/ADC5/TOUCH8 of ESP32
+#define PIN_D34           34        // Pin D34 mapped to pin GPIO34/ADC6 of ESP32
+#define PIN_D35           35        // Pin D35 mapped to pin GPIO35/ADC7 of ESP32
+#define PIN_D36           36        // Pin D36 mapped to pin GPIO36/ADC0/SVP of ESP32
+#define PIN_D39           39        // Pin D39 mapped to pin GPIO39/ADC3/SVN of ESP32
+
+#define PIN_RX0            3        // Pin RX0 mapped to pin GPIO3/RX0 of ESP32
+#define PIN_TX0            1        // Pin TX0 mapped to pin GPIO1/TX0 of ESP32
+
+#define PIN_SCL           22        // Pin SCL mapped to pin GPIO22/SCL of ESP32
+#define PIN_SDA           21        // Pin SDA mapped to pin GPIO21/SDA of ESP32  
+
+#define TIMER_INTERRUPT_DEBUG       1
+#define ISR_SERVO_DEBUG             1
+
+// Select different ESP32 timer number (0-3) to avoid conflict
+#define USE_ESP32_TIMER_NO          3
+
+#include "ESP32_ISR_Servo.h"
+
+// MG996R servo has a running current of  500mA to 900mA @6V and a stall current of 2.5A @ 6V
+// Power supply must be adequate
+// Published values for SG90 servos; adjust if needed
+#define MIN_MICROS      800  //544
+#define MAX_MICROS      2450
+
+int servoIndex1  = -1;
+int servoIndex2  = -1;
+int servoIndex3  = -1;
+
+int servo1Pin = PIN_D25; //SERVO1 PIN
+int servo2Pin = PIN_D26; //SERVO2 PIN
+int servo3Pin = PIN_D27; //SERVO3 PIN
+
+BlynkTimer timer;
+
+// These are Blynk Slider or any Widget (STEP, Numeric Input, being able to output (unsigned) int value from 0-180.
+// You have to map from 0-180 inside widget or in your code. Otherwise, the library will remap the input for you.
+#define BLYNK_VPIN_SERVO1_CONTROL       V21
+#define BLYNK_VPIN_SERVO2_CONTROL       V22
+#define BLYNK_VPIN_SERVO3_CONTROL       V23
+
+//READING FROM VIRTUAL PINS
+// SERVO1
+BLYNK_WRITE(BLYNK_VPIN_SERVO1_CONTROL)
+{
+  ESP32_ISR_Servos.setPosition(servoIndex1, param.asInt());
 }
 
-bool IRAM_ATTR TimerHandler1(void * timerNo)
-{ 
-  static bool toggle1 = false;
-
-  //timer interrupt toggles outputPin
-  digitalWrite(PIN_D3, toggle1);
-  toggle1 = !toggle1;
-
-  return true;
+//SERVO2
+BLYNK_WRITE(BLYNK_VPIN_SERVO2_CONTROL)
+{
+  ESP32_ISR_Servos.setPosition(servoIndex2, param.asInt());
 }
 
-#define TIMER0_INTERVAL_MS        1000
-#define TIMER0_DURATION_MS        5000
+//SERVO3
+BLYNK_WRITE(BLYNK_VPIN_SERVO3_CONTROL)
+{
+  ESP32_ISR_Servos.setPosition(servoIndex3, param.asInt());
+}
 
-#define TIMER1_INTERVAL_MS        3000
-#define TIMER1_DURATION_MS        15000
+void heartBeatPrint(void)
+{
+  static int num = 1;
 
-// Init ESP32 timer 0 and 1
-ESP32Timer ITimer0(0);
-ESP32Timer ITimer1(1);
+  if (WiFi.status() == WL_CONNECTED)
+  {
+    if (Blynk.connected())
+      Serial.print(F("B"));        // B means connected to Blynk
+    else
+      Serial.print(F("H"));        // H means connected to WiFi but no Blynk
+  }
+  else
+    Serial.print(F("F"));          // F means not connected to WiFi and Blynk
+
+  if (num == 80)
+  {
+    Serial.println();
+    num = 1;
+  }
+  else if (num++ % 10 == 0)
+  {
+    Serial.print(F(" "));
+  }
+}
 
 void setup()
 {
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(PIN_D3, OUTPUT);
-
+  // Debug console
   Serial.begin(115200);
   while (!Serial);
+
+  delay(200);
+
+#if (USE_LITTLEFS)
+  Serial.print(F("\nStarting ESP32_BlynkServoControl using LITTLEFS"));
+#elif (USE_SPIFFS)
+  Serial.print(F("\nStarting ESP32_BlynkServoControl using SPIFFS"));  
+#else
+  Serial.print(F("\nStarting ESP32_BlynkServoControl using EEPROM"));
+#endif
+
+#if USE_SSL
+  Serial.print(F(" with SSL on ")); Serial.println(ARDUINO_BOARD);
+#else
+  Serial.print(F(" without SSL on ")); Serial.println(ARDUINO_BOARD);
+#endif
+
+  Serial.println(BLYNK_WM_VERSION);
+  Serial.println(ESP_DOUBLE_RESET_DETECTOR_VERSION);
+  Serial.println(ESP32_ISR_SERVO_VERSION);
   
-  delay(100);
-  
-  Serial.print(F("\nStarting TimerInterruptTest on ")); Serial.println(ARDUINO_BOARD);
-  Serial.println(ESP32_C3_TIMER_INTERRUPT_VERSION);
-  Serial.print(F("CPU Frequency = ")); Serial.print(F_CPU / 1000000); Serial.println(F(" MHz"));
+  Blynk.begin(HOST_NAME);
 
-  // Using ESP32  => 80 / 160 / 240MHz CPU clock ,
-  // For 64-bit timer counter
-  // For 16-bit timer prescaler up to 1024
+  //Select ESP32 timer USE_ESP32_TIMER_NO
+  ESP32_ISR_Servos.useTimer(USE_ESP32_TIMER_NO);
 
-  // Interval in microsecs
-  if (ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler0))
-  {
-    Serial.print(F("Starting  ITimer0 OK, millis() = ")); Serial.println(millis());
-  }
+  servoIndex1 = ESP32_ISR_Servos.setupServo(servo1Pin, MIN_MICROS, MAX_MICROS);
+  servoIndex2 = ESP32_ISR_Servos.setupServo(servo2Pin, MIN_MICROS, MAX_MICROS);
+  servoIndex3 = ESP32_ISR_Servos.setupServo(servo3Pin, MIN_MICROS, MAX_MICROS);
+
+  if (servoIndex1 != -1)
+    Serial.println(F("Setup Servo1 OK"));
   else
-    Serial.println(F("Can't set ITimer0. Select another freq. or timer"));
+    Serial.println(F("Setup Servo1 failed"));
 
-  // Interval in microsecs
-  if (ITimer1.attachInterruptInterval(TIMER1_INTERVAL_MS * 1000, TimerHandler1))
-  {
-    Serial.print(F("Starting  ITimer1 OK, millis() = ")); Serial.println(millis());
-  }
+  if (servoIndex2 != -1)
+    Serial.println(F("Setup Servo2 OK"));
   else
-    Serial.println(F("Can't set ITimer1. Select another freq. or timer"));
+    Serial.println(F("Setup Servo2 failed"));
 
-  Serial.flush();  
+  if (servoIndex3 != -1)
+    Serial.println(F("Setup Servo3 OK"));
+  else
+    Serial.println(F("Setup Servo3 failed"));
+
+  timer.setInterval(30000L, heartBeatPrint);
 }
 
 void loop()
 {
-  static unsigned long lastTimer0 = 0;
-  static unsigned long lastTimer1 = 0;
-
-  static bool timer0Stopped         = false;
-  static bool timer1Stopped         = false;
-
-  if (millis() - lastTimer0 > TIMER0_DURATION_MS)
-  {
-    lastTimer0 = millis();
-
-    if (timer0Stopped)
-    {
-      Serial.print(F("Start ITimer0, millis() = ")); Serial.println(millis());
-      ITimer0.restartTimer();
-    }
-    else
-    {
-      Serial.print(F("Stop ITimer0, millis() = ")); Serial.println(millis());
-      ITimer0.stopTimer();
-    }
-    timer0Stopped = !timer0Stopped;
-  }
-
-  if (millis() - lastTimer1 > TIMER1_DURATION_MS)
-  {
-    lastTimer1 = millis();
-
-    if (timer1Stopped)
-    {
-      Serial.print(F("Start ITimer1, millis() = ")); Serial.println(millis());
-      ITimer1.restartTimer();
-    }
-    else
-    {
-      Serial.print(F("Stop ITimer1, millis() = ")); Serial.println(millis());
-      ITimer1.stopTimer();
-    }
-    
-    timer1Stopped = !timer1Stopped;
-  }
+  Blynk.run();
+  timer.run();
 }
 ```
 ---
@@ -486,251 +550,153 @@ void loop()
 
 ### Debug Terminal Output Samples
 
-### 1. ISR_16_Timers_Array_Complex on ESP32C3_DEV
+### 1. ESP32_BlynkServoControl using LITTLEFS without SSL on ESP32_DEV
 
-The following is the sample terminal output when running example [ISR_16_Timers_Array_Complex](examples/ISR_16_Timers_Array_Complex) on **ESP32C3_DEV** to demonstrate of ISR Hardware Timer, especially when system is very busy or blocked. The 16 independent ISR timers are programmed to be activated repetitively after certain intervals, is activated exactly after that programmed interval !!!
 
 ```
-Starting ISR_16_Timers_Array_Complex on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
-CPU Frequency = 160 MHz
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 1
-[TISR] Timer freq = 100.00, _count = 0-10000
-[TISR] timer_set_alarm_value = 10000.00
-Starting ITimer OK, millis() = 2100
-SimpleTimer : 2, ms : 12116, Dms : 10004
-Timer : 0, programmed : 5000, actual : 5008
-Timer : 1, programmed : 10000, actual : 0
-Timer : 2, programmed : 15000, actual : 0
-Timer : 3, programmed : 20000, actual : 0
-Timer : 4, programmed : 25000, actual : 0
-Timer : 5, programmed : 30000, actual : 0
-Timer : 6, programmed : 35000, actual : 0
-Timer : 7, programmed : 40000, actual : 0
-Timer : 8, programmed : 45000, actual : 0
-Timer : 9, programmed : 50000, actual : 0
-Timer : 10, programmed : 55000, actual : 0
-Timer : 11, programmed : 60000, actual : 0
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 22196, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15008
-Timer : 3, programmed : 20000, actual : 20008
-Timer : 4, programmed : 25000, actual : 0
-Timer : 5, programmed : 30000, actual : 0
-Timer : 6, programmed : 35000, actual : 0
-Timer : 7, programmed : 40000, actual : 0
-Timer : 8, programmed : 45000, actual : 0
-Timer : 9, programmed : 50000, actual : 0
-Timer : 10, programmed : 55000, actual : 0
-Timer : 11, programmed : 60000, actual : 0
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 32276, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20008
-Timer : 4, programmed : 25000, actual : 25008
-Timer : 5, programmed : 30000, actual : 30008
-Timer : 6, programmed : 35000, actual : 0
-Timer : 7, programmed : 40000, actual : 0
-Timer : 8, programmed : 45000, actual : 0
-Timer : 9, programmed : 50000, actual : 0
-Timer : 10, programmed : 55000, actual : 0
-Timer : 11, programmed : 60000, actual : 0
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 42356, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20000
-Timer : 4, programmed : 25000, actual : 25008
-Timer : 5, programmed : 30000, actual : 30008
-Timer : 6, programmed : 35000, actual : 35008
-Timer : 7, programmed : 40000, actual : 40008
-Timer : 8, programmed : 45000, actual : 0
-Timer : 9, programmed : 50000, actual : 0
-Timer : 10, programmed : 55000, actual : 0
-Timer : 11, programmed : 60000, actual : 0
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 52436, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20000
-Timer : 4, programmed : 25000, actual : 25000
-Timer : 5, programmed : 30000, actual : 30008
-Timer : 6, programmed : 35000, actual : 35008
-Timer : 7, programmed : 40000, actual : 40008
-Timer : 8, programmed : 45000, actual : 45008
-Timer : 9, programmed : 50000, actual : 50008
-Timer : 10, programmed : 55000, actual : 0
-Timer : 11, programmed : 60000, actual : 0
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 62516, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20000
-Timer : 4, programmed : 25000, actual : 25000
-Timer : 5, programmed : 30000, actual : 30000
-Timer : 6, programmed : 35000, actual : 35008
-Timer : 7, programmed : 40000, actual : 40008
-Timer : 8, programmed : 45000, actual : 45008
-Timer : 9, programmed : 50000, actual : 50008
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60008
-Timer : 12, programmed : 65000, actual : 0
-Timer : 13, programmed : 70000, actual : 0
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 72596, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20000
-Timer : 4, programmed : 25000, actual : 25000
-Timer : 5, programmed : 30000, actual : 30000
-Timer : 6, programmed : 35000, actual : 35000
-Timer : 7, programmed : 40000, actual : 40008
-Timer : 8, programmed : 45000, actual : 45008
-Timer : 9, programmed : 50000, actual : 50008
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60008
-Timer : 12, programmed : 65000, actual : 65008
-Timer : 13, programmed : 70000, actual : 70008
-Timer : 14, programmed : 75000, actual : 0
-Timer : 15, programmed : 80000, actual : 0
-SimpleTimer : 2, ms : 82676, Dms : 10080
-Timer : 0, programmed : 5000, actual : 5000
-Timer : 1, programmed : 10000, actual : 10000
-Timer : 2, programmed : 15000, actual : 15000
-Timer : 3, programmed : 20000, actual : 20000
-Timer : 4, programmed : 25000, actual : 25000
-Timer : 5, programmed : 30000, actual : 30000
-Timer : 6, programmed : 35000, actual : 35000
-Timer : 7, programmed : 40000, actual : 40000
-Timer : 8, programmed : 45000, actual : 45008
-Timer : 9, programmed : 50000, actual : 50008
-Timer : 10, programmed : 55000, actual : 55008
-Timer : 11, programmed : 60000, actual : 60008
-Timer : 12, programmed : 65000, actual : 65008
-Timer : 13, programmed : 70000, actual : 70008
-Timer : 14, programmed : 75000, actual : 75008
-Timer : 15, programmed : 80000, actual : 80008
+Starting ESP32_BlynkServoControl using LITTLEFS without SSL on ESP32_DEV
+Blynk_WM v1.1.0
+ESP_DoubleResetDetector v1.1.1
+ESP32_ISR_Servo v1.1.0
+[486] Hostname=ESP32ServoControl
+[511] LoadCfgFile 
+[513] OK
+[513] CCSum=0x336b,RCSum=0x336b
+[535] LoadCredFile 
+[543] OK
+[543] CrCCsum=0x29a6,CrRCsum=0x29a6
+[543] Hdr=ESP32,BrdName=ESP32_MRD
+[543] SSID=HueNet1,PW=jenniqqs
+[543] SSID1=HueNet2,PW1=jenniqqs
+[545] Server=khoih.duckdns.org,Token=bsltIJmMBJIhD9QGlVe0TxSEOtRcHdLu
+[551] Server1=khoih.duckdns.org,Token1=dpjQumZ-qT8MZnwAUd2F8ZM0DfEM_WCP
+[557] Port=9443
+[559] ======= End Config Data =======
+[562] Connecting MultiWifi...
+[6433] WiFi connected after time: 1
+[6433] SSID:HueNet1,RSSI=-36
+[6433] Channel:2,IP address:192.168.2.101
+[6433] bg: WiFi OK. Try Blynk
+[6434] 
+    ___  __          __
+   / _ )/ /_ _____  / /__
+  / _  / / // / _ \/  '_/
+ /____/_/\_, /_//_/_/\_\
+        /___/ v0.6.1 on ESP32
+
+[6447] BlynkArduinoClient.connect: Connecting to khoih.duckdns.org:8080
+[6589] Ready (ping: 6ms).
+[6657] Connected to Blynk Server = khoih.duckdns.org, Token = bsltIJmMBJIhD9QGlVe0TxSEOtRcHdLu
+[6657] bg: WiFi+Blynk OK
+Setup Servo1 OK
+Setup Servo2 OK
+Setup Servo3 OK
+```
+---
+
+### 2. ESP32_MultipleRandomServos on ESP32_DEV
+
+```
+Starting ESP32_MultipleRandomServos on ESP32_DEV
+ESP32_ISR_Servo v1.1.0
+Setup OK Servo index = 0
+Setup OK Servo index = 1
+Setup OK Servo index = 2
+Setup OK Servo index = 3
+Setup OK Servo index = 4
+Setup OK Servo index = 5
+Servos @ 0 degree
+Servos idx = 0, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 1, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 2, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 3, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 4, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 5, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos @ 90 degree
+Servos idx = 0, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 1, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 2, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 3, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 4, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 5, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos @ 180 degree
+Servos idx = 0, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 1, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 2, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 3, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 4, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 5, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos sweeps from 0-180 degress
+Servos sweeps from 180-0 degress
+Servos, index depending, be somewhere from 0-180 degress
+Servos, index depending, be somewhere from 180-0 degress
+Servos @ 0 degree
+Servos idx = 0, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 1, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 2, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 3, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 4, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos idx = 5, act. pos. (deg) = 0, pulseWidth (us) = 800
+Servos @ 90 degree
+Servos idx = 0, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 1, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 2, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 3, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 4, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos idx = 5, act. pos. (deg) = 90, pulseWidth (us) = 1620
+Servos @ 180 degree
+Servos idx = 0, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 1, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 2, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 3, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 4, act. pos. (deg) = 180, pulseWidth (us) = 2450
+Servos idx = 5, act. pos. (deg) = 180, pulseWidth (us) = 2450
 ```
 
 ---
 
-### 2. TimerInterruptTest on ESP32C3_DEV
+### 3. ESP32_ISR_MultiServos on ESP32_DEV
 
-The following is the sample terminal output when running example [TimerInterruptTest](examples/TimerInterruptTest) to demonstrate how to start/stop Hardware Timers.
 
 ```
-Starting TimerInterruptTest on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
-CPU Frequency = 160 MHz
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 0
-[TISR] Timer freq = 1.00, _count = 0-1000000
-[TISR] timer_set_alarm_value = 1000000.00
-Starting  ITimer0 OK, millis() = 212
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 1
-[TISR] Timer freq = 0.33, _count = 0-3000000
-[TISR] timer_set_alarm_value = 3000000.00
-Starting  ITimer1 OK, millis() = 237
-Stop ITimer0, millis() = 5001
-Start ITimer0, millis() = 10002
-Stop ITimer1, millis() = 15001
-Stop ITimer0, millis() = 15003
-Start ITimer0, millis() = 20004
-Stop ITimer0, millis() = 25005
-Start ITimer1, millis() = 30002
-Start ITimer0, millis() = 30006
-```
-
----
-
-
-### 3. Change_Interval on ESP32C3_DEV
-
-The following is the sample terminal output when running example [Change_Interval](examples/Change_Interval) to demonstrate how to change Timer Interval on-the-fly
-
-```
-Starting Change_Interval on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
-CPU Frequency = 160 MHz
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 0
-[TISR] Timer freq = 0.50, _count = 0-2000000
-[TISR] timer_set_alarm_value = 2000000.00
-Starting  ITimer0 OK, millis() = 212
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 1
-[TISR] Timer freq = 0.20, _count = 0-5000000
-[TISR] timer_set_alarm_value = 5000000.00
-Starting  ITimer1 OK, millis() = 237
-Time = 10001, Timer0Count = 5, Timer1Count = 2
-Time = 20002, Timer0Count = 10, Timer1Count = 4
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 0
-[TISR] Timer freq = 0.25, _count = 0-4000000
-[TISR] timer_set_alarm_value = 4000000.00
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 1
-[TISR] Timer freq = 0.10, _count = 0-10000000
-[TISR] timer_set_alarm_value = 10000000.00
-Changing Interval, Timer0 = 4000,  Timer1 = 10000
-Time = 30003, Timer0Count = 12, Timer1Count = 4
-```
-
----
-
-### 4. Argument_None on ESP32C3_DEV
-
-The following is the sample terminal output when running example [Argument_None](examples/Argument_None)
-
-```
-Starting Argument_None on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
-CPU Frequency = 160 MHz
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 0
-[TISR] Timer freq = 1.00, _count = 0-1000000
-[TISR] timer_set_alarm_value = 1000000.00
-Starting  ITimer0 OK, millis() = 212
-[TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
-[TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
-[TISR] _timerIndex = 0, _timerGroup = 1
-[TISR] Timer freq = 0.20, _count = 0-5000000
-[TISR] timer_set_alarm_value = 5000000.00
-Starting  ITimer1 OK, millis() = 237
+Starting ESP32_ISR_MultiServos on ESP32_DEV
+ESP32_ISR_Servo v1.1.0
+Setup Servo1 OK
+Setup Servo2 OK
+Servo1 pos = 0, Servo2 pos = 180
+Servo1 pos = 30, Servo2 pos = 150
+Servo1 pos = 60, Servo2 pos = 120
+Servo1 pos = 90, Servo2 pos = 90
+Servo1 pos = 120, Servo2 pos = 60
+Servo1 pos = 150, Servo2 pos = 30
+Servo1 pos = 180, Servo2 pos = 0
+Servo1 pos = 180, Servo2 pos = 0
+Servo1 pos = 150, Servo2 pos = 30
+Servo1 pos = 120, Servo2 pos = 60
+Servo1 pos = 90, Servo2 pos = 90
+Servo1 pos = 60, Servo2 pos = 120
+Servo1 pos = 30, Servo2 pos = 150
+Servo1 pos = 0, Servo2 pos = 180
+Servo1 pos = 0, Servo2 pos = 180
+Servo1 pos = 30, Servo2 pos = 150
+Servo1 pos = 60, Servo2 pos = 120
+Servo1 pos = 90, Servo2 pos = 90
+Servo1 pos = 120, Servo2 pos = 60
+Servo1 pos = 150, Servo2 pos = 30
+Servo1 pos = 180, Servo2 pos = 0
+Servo1 pos = 180, Servo2 pos = 0
+Servo1 pos = 150, Servo2 pos = 30
+Servo1 pos = 120, Servo2 pos = 60
+Servo1 pos = 90, Servo2 pos = 90
+Servo1 pos = 60, Servo2 pos = 120
+Servo1 pos = 30, Servo2 pos = 150
+Servo1 pos = 0, Servo2 pos = 180
+Servo1 pos = 0, Servo2 pos = 180
+Servo1 pos = 30, Servo2 pos = 150
+Servo1 pos = 60, Servo2 pos = 120
+Servo1 pos = 90, Servo2 pos = 90
+Servo1 pos = 120, Servo2 pos = 60
+Servo1 pos = 150, Servo2 pos = 30
 ```
 
 ---
@@ -740,14 +706,11 @@ Starting  ITimer1 OK, millis() = 237
 
 Debug is enabled by default on Serial.
 
-You can also change the debugging level (_TIMERINTERRUPT_LOGLEVEL_) from 0 to 4
+You can also change the debugging level from 0 to 2. Be careful and using level 2 only for temporary debug purpose only.
 
 ```cpp
-// These define's must be placed at the beginning before #include "ESP32_C3_TimerInterrupt.h"
-// _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
-// Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define TIMER_INTERRUPT_DEBUG         0
-#define _TIMERINTERRUPT_LOGLEVEL_     0
+#define TIMER_INTERRUPT_DEBUG       1
+#define ISR_SERVO_DEBUG             1
 ```
 
 ---
@@ -758,40 +721,64 @@ If you get compilation errors, more often than not, you may need to install a ne
 
 Sometimes, the library will only work if you update the board core to the latest version because I am using newly added functions.
 
+
+---
+---
+
+## Releases
+
+### Releases v1.1.0
+
+1. Fix bug. See [Fixed count >= min comparison for servo enable](https://github.com/khoih-prog/ESP32_ISR_Servo/pull/1)
+2. Clean-up all compiler warnings possible.
+3. Add Table of Contents
+4. Add Version String
+5. Fix and Optimize old examples
+
+#### Releases v1.0.2
+
+1. Add example using [Blynk](http://docs.blynk.cc/) to control servos. 
+2. Change example names to avoid duplication.
+
+#### Releases v1.0.1
+
+1. Basic 16 ISR-based servo controllers using 1 hardware timer for ESP32.
+
 ---
 ---
 
 ### Issues
 
-Submit issues to: [ESP32_C3_TimerInterrupt issues](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/issues)
+Submit issues to: [ESP32_ISR_Servo issues](https://github.com/khoih-prog/ESP32_ISR_Servo/issues)
 
+---
 ---
 
 ## TO DO
 
 1. Search for bug and improvement.
 
-
+---
 
 ## DONE
 
-1. Basic hardware timers for ESP32_C3.
-2. More hardware-initiated software-enabled timers
-3. Longer time interval
-4. Similar features for remaining Arduino boards such as SAMD21, SAMD51, SAM-DUE, nRF52, ESP8266, STM32, etc.
-5. Fix compiler errors due to conflict to some libraries.
-6. Add complex examples.
-7. Fix `multiple-definitions` linker error. Drop `src_cpp` and `src_h` directories
-8. Avoid deprecated functions.
-9. Optimize library code by using `reference-passing` instead of `value-passing`
-
+1. Similar features for Arduino (UNO, Mega, etc...) and ESP8266
+2. Add functions `getPosition()` and `getPulseWidth()`
+3. Optimize the code
+4. Add more complicated examples
 
 ---
 ---
 
-### Contributions and Thanks
+### Contributions and thanks
 
-Many thanks for everyone for bug reporting, new feature suggesting, testing and contributing to the development of this library.
+1. Thanks to [raphweb](https://github.com/raphweb) for the PR [Fixed count >= min comparison for servo enable.](https://github.com/khoih-prog/ESP32_ISR_Servo/pull/1) to fix bug and leading to the new releases v1.1.0
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/raphweb"><img src="https://github.com/raphweb.png" width="100px;" alt="raphweb"/><br /><sub><b>⭐️ raphweb</b></sub></a><br /></td>
+  </tr> 
+</table>
 
 
 ---
@@ -808,12 +795,10 @@ If you want to contribute to this project:
 
 ### License
 
-- The library is licensed under [MIT](https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/blob/master/LICENSE)
+- The library is licensed under [MIT](https://github.com/khoih-prog/ESP32_ISR_Servo/blob/master/LICENSE)
 
 ---
 
 ## Copyright
 
-Copyright 2021- Khoi Hoang
-
-
+Copyright 2019- Khoi Hoang
