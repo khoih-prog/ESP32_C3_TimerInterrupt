@@ -25,12 +25,13 @@
   Based on BlynkTimer.h
   Author: Volodymyr Shymanskyy
 
-  Version: 1.5.0
+  Version: 1.6.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.4.0   K Hoang      29/07/2021 Initial coding. Sync with ESP32_S2_TimerInterrupt v1.4.0
   1.5.0   K.Hoang      23/01/2022 Avoid deprecated functions. Fix `multiple-definitions` linker error
+  1.6.0   K Hoang      10/08/2022 Suppress errors and warnings for new ESP32 core
 *****************************************************************************************************************************/
 
 #pragma once
@@ -45,13 +46,13 @@
 #endif
 
 #ifndef ESP32_C3_TIMER_INTERRUPT_VERSION
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.5.0"
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.6.0"
   
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_MAJOR      1
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      5
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      6
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_PATCH      0
 
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1005000  
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1006000  
 #endif
 
 #ifndef TIMER_INTERRUPT_DEBUG
@@ -71,34 +72,28 @@
 #include <driver/timer.h>
 
 /*
-  // ESP32 core v2.0.0-rc1, hw_timer_t defined in tools/sdk/esp32c3/include/hal/include/hal/timer_types.h:
+  //ESP32 core v1.0.6, hw_timer_t defined in esp32/tools/sdk/include/driver/driver/timer.h:
 
   #define TIMER_BASE_CLK   (APB_CLK_FREQ)  //Frequency of the clock on the input of the timer groups 
 
-  // In tools/sdk/esp32c3/include/soc/esp32c3/include/soc/soc_caps.h
-  #define SOC_TIMER_GROUP_TIMERS_PER_GROUP  (1)
-  #define SOC_TIMER_GROUPS                  (2)
-  #define SOC_TIMER_GROUP_TOTAL_TIMERS      (SOC_TIMER_GROUPS * SOC_TIMER_GROUP_TIMERS_PER_GROUP)
-  
+
  //@brief Selects a Timer-Group out of 2 available groups
  
-typedef enum {
-    TIMER_GROUP_0 = 0, //!<Hw timer group 0
-#if SOC_TIMER_GROUPS > 1
-    TIMER_GROUP_1 = 1, //!<Hw timer group 1
-#endif
-    TIMER_GROUP_MAX,
+typedef enum
+{
+  TIMER_GROUP_0 = 0, // Hw timer group 0
+  TIMER_GROUP_1 = 1, // Hw timer group 1
+  TIMER_GROUP_MAX,
 } timer_group_t;
 
 
  //@brief Select a hardware timer from timer groups
  
-typedef enum {
-    TIMER_0 = 0, //!<Select timer0 of GROUPx
-#if SOC_TIMER_GROUP_TIMERS_PER_GROUP > 1
-    TIMER_1 = 1, //!<Select timer1 of GROUPx
-#endif
-    TIMER_MAX,
+typedef enum 
+{
+  TIMER_0 = 0, // Select timer0 of GROUPx
+  TIMER_1 = 1, // Select timer1 of GROUPx
+  TIMER_MAX,
 } timer_idx_t;
 
 
@@ -120,19 +115,6 @@ typedef enum
   TIMER_START = 1,      //Start timer counter
 } timer_start_t;
 
-  // @brief Interrupt types of the timer.
-  //this is compatible with the value of esp32.
-typedef enum 
-{
-    TIMER_INTR_T0 = BIT(0),  //!< interrupt of timer 0  <========== only this timer available for ESP32_C3
-#if SOC_TIMER_GROUP_TIMERS_PER_GROUP > 1
-    TIMER_INTR_T1 = BIT(1),  //!< interrupt of timer 1
-    TIMER_INTR_WDT = BIT(2), //!< interrupt of watchdog
-#else
-    TIMER_INTR_WDT = BIT(1), //!< interrupt of watchdog
-#endif
-    TIMER_INTR_NONE = 0
-} timer_intr_t;
 
  //@brief Decides whether to enable alarm mode
  
@@ -149,6 +131,7 @@ typedef enum
 typedef enum 
 {
   TIMER_INTR_LEVEL = 0,  //Interrupt mode: level mode
+  //TIMER_INTR_EDGE = 1, //Interrupt mode: edge mode, Not supported Now
   TIMER_INTR_MAX
 } timer_intr_mode_t;
 
@@ -162,29 +145,40 @@ typedef enum
   TIMER_AUTORELOAD_MAX,
 } timer_autoreload_t;
 
-#if SOC_TIMER_GROUP_SUPPORT_XTAL
-// @brief Select timer source clock.
-typedef enum 
-{
-    TIMER_SRC_CLK_APB = 0,  //!< Select APB as the source clock
-    TIMER_SRC_CLK_XTAL = 1, //!< Select XTAL as the source clock
-} timer_src_clk_t;
-#endif
 
  //@brief Data structure with timer's configuration settings
  
 typedef struct 
 {
-  timer_alarm_t alarm_en;           //!< Timer alarm enable
-  timer_start_t counter_en;         //!< Counter enable
-  timer_intr_mode_t intr_type;      //< Interrupt mode
-  timer_count_dir_t counter_dir;    //!< Counter direction
-  timer_autoreload_t auto_reload;   //!< Timer auto-reload
-  uint32_t divider;   //!< Counter clock divider. The divider's range is from from 2 to 65536.
-#if SOC_TIMER_GROUP_SUPPORT_XTAL
-  timer_src_clk_t clk_src;          //!< Use XTAL as source clock.
-#endif
+  bool alarm_en;                    //Timer alarm enable 
+  bool counter_en;                  //Counter enable 
+  timer_intr_mode_t intr_type;      //Interrupt mode 
+  timer_count_dir_t counter_dir;    //Counter direction  
+  bool auto_reload;                 //Timer auto-reload 
+  uint32_t divider;                 //Counter clock divider. The divider's range is from from 2 to 65536. 
 } timer_config_t;
+
+*/
+
+/*
+  //ESP32 core v2.0.4, timer_config_t defined in tools/sdk/esp32/include/hal/include/hal/timer_types.h:
+  #if SOC_TIMER_GROUP_SUPPORT_XTAL
+  typedef enum {
+    TIMER_SRC_CLK_APB = 0,  // Select APB as the source clock
+    TIMER_SRC_CLK_XTAL = 1, // Select XTAL as the source clock
+  } timer_src_clk_t;
+  #endif
+  typedef struct {
+    timer_alarm_t alarm_en;           // Timer alarm enable
+    timer_start_t counter_en;         // Counter enable
+    timer_intr_mode_t intr_type;      // Interrupt mode
+    timer_count_dir_t counter_dir;    // Counter direction
+    timer_autoreload_t auto_reload;   // Timer auto-reload
+    uint32_t divider;                 // Counter clock divider. The divider's range is from from 2 to 65536
+  #if SOC_TIMER_GROUP_SUPPORT_XTAL
+    timer_src_clk_t clk_src;          // Use XTAL as source clock
+  #endif
+  } timer_config_t;
 
 */
 
@@ -227,8 +221,11 @@ class ESP32TimerInterrupt
       .counter_en   = TIMER_START,          //starts counting counter once timer_init called
       .intr_type    = TIMER_INTR_MAX,
       .counter_dir  = TIMER_COUNT_UP,       //counts from 0 to counter value
-      .auto_reload  = TIMER_AUTORELOAD_EN,  // reloads counter automatically
-      .divider      = TIMER_DIVIDER
+      .auto_reload  = TIMER_AUTORELOAD_EN,  //reloads counter automatically
+      .divider      = TIMER_DIVIDER,
+#if SOC_TIMER_GROUP_SUPPORT_XTAL
+      .clk_src      = TIMER_SRC_CLK_XTAL    //Use XTAL as source clock
+#endif      
     };
 
     timer_idx_t       _timerIndex;

@@ -13,6 +13,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.6.0](#releases-v160)
   * [Releases v1.5.0](#releases-v150)
   * [Releases v1.4.0](#releases-v140)
 
@@ -20,6 +21,10 @@
 ---
 
 ## Changelog
+
+### Releases v1.6.0
+
+1. Suppress errors and warnings for new ESP32 core v2.0.4+
 
 ### Releases v1.5.0
 

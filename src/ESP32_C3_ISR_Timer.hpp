@@ -24,12 +24,13 @@
   Based on BlynkTimer.h
   Author: Volodymyr Shymanskyy
 
-  Version: 1.5.0
+  Version: 1.6.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.4.0   K Hoang      29/07/2021 Initial coding. Sync with ESP32_S2_TimerInterrupt v1.4.0
   1.5.0   K.Hoang      23/01/2022 Avoid deprecated functions. Fix `multiple-definitions` linker error
+  1.6.0   K Hoang      10/08/2022 Suppress errors and warnings for new ESP32 core
 *****************************************************************************************************************************/
 
 #pragma once
@@ -42,13 +43,13 @@
 #endif
 
 #ifndef ESP32_C3_TIMER_INTERRUPT_VERSION
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.5.0"
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.6.0"
   
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_MAJOR      1
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      5
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      6
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_PATCH      0
 
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1005000  
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1006000  
 #endif
 
 #include "TimerInterrupt_Generic_Debug.h"
@@ -129,7 +130,7 @@ class ESP32_ISR_Timer
     int setTimer(const unsigned long& d, timer_callback_p f, void* p, const unsigned& n);
 
     // updates interval of the specified timer
-    bool changeInterval(unsigned numTimer, const unsigned long& d);
+    bool changeInterval(const unsigned &numTimer, const unsigned long& d);
 
     // destroy the specified timer
     void deleteTimer(const unsigned& numTimer);

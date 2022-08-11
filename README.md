@@ -6,7 +6,8 @@
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](#Contributing)
 [![GitHub issues](https://img.shields.io/github/issues/khoih-prog/ESP32_C3_TimerInterrupt.svg)](http://github.com/khoih-prog/ESP32_C3_TimerInterrupt/issues)
 
-<a href="https://www.buymeacoffee.com/khoihprog6" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Donate to my libraries using BuyMeACoffee" style="height: 50px !important;width: 181px !important;" ></a>
+<a href="https://www.buymeacoffee.com/khoihprog6" title="Donate to my libraries using BuyMeACoffee"><img src="https://img.shields.io/badge/buy%20me%20a%20coffee-donate-orange.svg?logo=buy-me-a-coffee&logoColor=FFDD00" style="height: 20px !important;width: 200px !important;" ></a>
 
 ---
 ---
@@ -128,7 +129,7 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 ## Prerequisites
 
 1. [`Arduino IDE 1.8.19+` for Arduino](https://github.com/arduino/Arduino). [![GitHub release](https://img.shields.io/github/release/arduino/Arduino.svg)](https://github.com/arduino/Arduino/releases/latest)
-2. [`ESP32 Core 2.0.2+`](https://github.com/espressif/arduino-esp32) for ESP32-S2-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
+2. [`ESP32 Core 2.0.4+`](https://github.com/espressif/arduino-esp32) for ESP32-S2-based boards. [![Latest release](https://img.shields.io/github/release/espressif/arduino-esp32.svg)](https://github.com/espressif/arduino-esp32/releases/latest/)
 3. To use with certain example
    - [`SimpleTimer library`](https://github.com/jfturcot/SimpleTimer) for [ISR_16_Timers_Array](examples/ISR_16_Timers_Array) and [ISR_16_Timers_Array_Complex](examples/ISR_16_Timers_Array_Complex) examples.
    
@@ -156,7 +157,7 @@ Another way to install is to:
 
 1. Install [VS Code](https://code.visualstudio.com/)
 2. Install [PlatformIO](https://platformio.org/platformio-ide)
-3. Install [**ESP32_C3_TimerInterrupt** library](https://platformio.org/lib/show/12622/ESP32_C3_TimerInterrupt) by using [Library Manager](https://platformio.org/lib/show/12622/ESP32_C3_TimerInterrupt/installation). Search for **ESP32_C3_TimerInterrupt** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
+3. Install [**ESP32_C3_TimerInterrupt** library](https://registry.platformio.org/libraries/khoih-prog/ESP32_C3_TimerInterrupt) by using [Library Manager](https://registry.platformio.org/libraries/khoih-prog/ESP32_C3_TimerInterrupt/installation). Search for **ESP32_C3_TimerInterrupt** in [Platform.io Author's Libraries](https://platformio.org/lib/search?query=author:%22Khoi%20Hoang%22)
 4. Use included [platformio.ini](platformio/platformio.ini) file from examples to ensure that all dependent libraries will installed automatically. Please visit documentation for the other options and examples at [Project Configuration File](https://docs.platformio.org/page/projectconf.html)
 
 
@@ -343,144 +344,8 @@ void setup()
 
 ### Example [TimerInterruptTest](examples/TimerInterruptTest)
 
-```
-#if !( ARDUINO_ESP32C3_DEV )
-  #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
-#endif
+https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/blob/06ea22be5dd44b06b3778b6c999eb845294334cc/examples/TimerInterruptTest/TimerInterruptTest.ino#L40-L175
 
-// These define's must be placed at the beginning before #include "TimerInterrupt_Generic.h"
-// _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
-// Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.
-#define TIMER_INTERRUPT_DEBUG         0
-#define _TIMERINTERRUPT_LOGLEVEL_     4
-
-// Can be included as many times as necessary, without `Multiple Definitions` Linker Error
-#include "ESP32_C3_TimerInterrupt.h"
-
-#ifndef LED_BUILTIN
-  #define LED_BUILTIN       2         // Pin D2 mapped to pin GPIO2/ADC12 of ESP32, control on-board LED
-#endif
-
-// Don't use PIN_D1 in core v2.0.0 and v2.0.1. Check https://github.com/espressif/arduino-esp32/issues/5868
-#define PIN_D2              2         // Pin D2 mapped to pin GPIO2/ADC12/TOUCH2/LED_BUILTIN of ESP32
-#define PIN_D3              3         // Pin D3 mapped to pin GPIO3/RX0 of ESP32
-
-// With core v2.0.0+, you can't use Serial.print/println in ISR or crash.
-// and you can't use float calculation inside ISR
-// Only OK in core v1.0.6-
-bool IRAM_ATTR TimerHandler0(void * timerNo)
-{ 
-  static bool toggle0 = false;
-
-  //timer interrupt toggles pin LED_BUILTIN
-  digitalWrite(LED_BUILTIN, toggle0);
-  toggle0 = !toggle0;
-
-  return true;
-}
-
-bool IRAM_ATTR TimerHandler1(void * timerNo)
-{ 
-  static bool toggle1 = false;
-
-  //timer interrupt toggles outputPin
-  digitalWrite(PIN_D3, toggle1);
-  toggle1 = !toggle1;
-
-  return true;
-}
-
-#define TIMER0_INTERVAL_MS        1000
-#define TIMER0_DURATION_MS        5000
-
-#define TIMER1_INTERVAL_MS        3000
-#define TIMER1_DURATION_MS        15000
-
-// Init ESP32 timer 0 and 1
-ESP32Timer ITimer0(0);
-ESP32Timer ITimer1(1);
-
-void setup()
-{
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(PIN_D3, OUTPUT);
-
-  Serial.begin(115200);
-  while (!Serial);
-  
-  delay(100);
-  
-  Serial.print(F("\nStarting TimerInterruptTest on ")); Serial.println(ARDUINO_BOARD);
-  Serial.println(ESP32_C3_TIMER_INTERRUPT_VERSION);
-  Serial.print(F("CPU Frequency = ")); Serial.print(F_CPU / 1000000); Serial.println(F(" MHz"));
-
-  // Using ESP32  => 80 / 160 / 240MHz CPU clock ,
-  // For 64-bit timer counter
-  // For 16-bit timer prescaler up to 1024
-
-  // Interval in microsecs
-  if (ITimer0.attachInterruptInterval(TIMER0_INTERVAL_MS * 1000, TimerHandler0))
-  {
-    Serial.print(F("Starting  ITimer0 OK, millis() = ")); Serial.println(millis());
-  }
-  else
-    Serial.println(F("Can't set ITimer0. Select another freq. or timer"));
-
-  // Interval in microsecs
-  if (ITimer1.attachInterruptInterval(TIMER1_INTERVAL_MS * 1000, TimerHandler1))
-  {
-    Serial.print(F("Starting  ITimer1 OK, millis() = ")); Serial.println(millis());
-  }
-  else
-    Serial.println(F("Can't set ITimer1. Select another freq. or timer"));
-
-  Serial.flush();  
-}
-
-void loop()
-{
-  static unsigned long lastTimer0 = 0;
-  static unsigned long lastTimer1 = 0;
-
-  static bool timer0Stopped         = false;
-  static bool timer1Stopped         = false;
-
-  if (millis() - lastTimer0 > TIMER0_DURATION_MS)
-  {
-    lastTimer0 = millis();
-
-    if (timer0Stopped)
-    {
-      Serial.print(F("Start ITimer0, millis() = ")); Serial.println(millis());
-      ITimer0.restartTimer();
-    }
-    else
-    {
-      Serial.print(F("Stop ITimer0, millis() = ")); Serial.println(millis());
-      ITimer0.stopTimer();
-    }
-    timer0Stopped = !timer0Stopped;
-  }
-
-  if (millis() - lastTimer1 > TIMER1_DURATION_MS)
-  {
-    lastTimer1 = millis();
-
-    if (timer1Stopped)
-    {
-      Serial.print(F("Start ITimer1, millis() = ")); Serial.println(millis());
-      ITimer1.restartTimer();
-    }
-    else
-    {
-      Serial.print(F("Stop ITimer1, millis() = ")); Serial.println(millis());
-      ITimer1.stopTimer();
-    }
-    
-    timer1Stopped = !timer1Stopped;
-  }
-}
-```
 ---
 ---
 
@@ -492,7 +357,7 @@ The following is the sample terminal output when running example [ISR_16_Timers_
 
 ```
 Starting ISR_16_Timers_Array_Complex on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
+ESP32_C3_TimerInterrupt v1.6.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -646,7 +511,7 @@ The following is the sample terminal output when running example [TimerInterrupt
 
 ```
 Starting TimerInterruptTest on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
+ESP32_C3_TimerInterrupt v1.6.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -679,7 +544,7 @@ The following is the sample terminal output when running example [Change_Interva
 
 ```
 Starting Change_Interval on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
+ESP32_C3_TimerInterrupt v1.6.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -717,7 +582,7 @@ The following is the sample terminal output when running example [Argument_None]
 
 ```
 Starting Argument_None on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.5.0
+ESP32_C3_TimerInterrupt v1.6.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -775,16 +640,16 @@ Submit issues to: [ESP32_C3_TimerInterrupt issues](https://github.com/khoih-prog
 
 ## DONE
 
-1. Basic hardware timers for ESP32_C3.
-2. More hardware-initiated software-enabled timers
-3. Longer time interval
-4. Similar features for remaining Arduino boards such as SAMD21, SAMD51, SAM-DUE, nRF52, ESP8266, STM32, etc.
-5. Fix compiler errors due to conflict to some libraries.
-6. Add complex examples.
-7. Fix `multiple-definitions` linker error. Drop `src_cpp` and `src_h` directories
-8. Avoid deprecated functions.
-9. Optimize library code by using `reference-passing` instead of `value-passing`
-
+ 1. Basic hardware timers for ESP32_C3.
+ 2. More hardware-initiated software-enabled timers
+ 3. Longer time interval
+ 4. Similar features for remaining Arduino boards such as SAMD21, SAMD51, SAM-DUE, nRF52, ESP8266, STM32, etc.
+ 5. Fix compiler errors due to conflict to some libraries.
+ 6. Add complex examples.
+ 7. Fix `multiple-definitions` linker error. Drop `src_cpp` and `src_h` directories
+ 8. Avoid deprecated functions.
+ 9. Optimize library code by using `reference-passing` instead of `value-passing`
+10. Suppress errors and warnings for new ESP32 core v2.0.4+
 
 ---
 ---

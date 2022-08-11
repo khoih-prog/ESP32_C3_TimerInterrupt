@@ -59,7 +59,6 @@
 bool IRAM_ATTR TimerHandler0(void * timerNo)
 { 
   static bool toggle0 = false;
-  static bool started = false;
 
   //timer interrupt toggles pin LED_BUILTIN
   digitalWrite(LED_BUILTIN, toggle0);
@@ -71,7 +70,6 @@ bool IRAM_ATTR TimerHandler0(void * timerNo)
 bool IRAM_ATTR TimerHandler1(void * timerNo)
 {
   static bool toggle1 = false;
-  static bool started = false;
 
   //timer interrupt toggles outputPin
   digitalWrite(PIN_D1, toggle1);
