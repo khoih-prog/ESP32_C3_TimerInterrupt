@@ -24,13 +24,14 @@
   Based on BlynkTimer.h
   Author: Volodymyr Shymanskyy
 
-  Version: 1.6.0
+  Version: 1.7.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
   1.4.0   K Hoang      29/07/2021 Initial coding. Sync with ESP32_S2_TimerInterrupt v1.4.0
   1.5.0   K.Hoang      23/01/2022 Avoid deprecated functions. Fix `multiple-definitions` linker error
   1.6.0   K Hoang      10/08/2022 Suppress errors and warnings for new ESP32 core
+  1.7.0   K Hoang      11/08/2022 Suppress warnings and add support for more ESP32_C3 boards
  *****************************************************************************************************************************/
 
 #pragma once

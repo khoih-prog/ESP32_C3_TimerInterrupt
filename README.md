@@ -113,7 +113,8 @@ The catch is **your function is now part of an ISR (Interrupt Service Routine), 
 
 ### Currently supported Boards
 
-1. ESP32_C3-based boards, such as ESP32C3_DEV, etc
+1. ESP32_C3-based boards, such as ESP32C3_DEV, LOLIN_C3_MINI, DFROBOT_BEETLE_ESP32_C3, ADAFRUIT_QTPY_ESP32C3, AirM2M_CORE_ESP32C3, XIAO_ESP32C3, etc.
+
 
 ---
 
@@ -344,7 +345,7 @@ void setup()
 
 ### Example [TimerInterruptTest](examples/TimerInterruptTest)
 
-https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/blob/06ea22be5dd44b06b3778b6c999eb845294334cc/examples/TimerInterruptTest/TimerInterruptTest.ino#L40-L175
+https://github.com/khoih-prog/ESP32_C3_TimerInterrupt/blob/10918f2620be6786c6d8b9447ce4e93ed2c90928/examples/TimerInterruptTest/TimerInterruptTest.ino#L40-L171
 
 ---
 ---
@@ -357,7 +358,7 @@ The following is the sample terminal output when running example [ISR_16_Timers_
 
 ```
 Starting ISR_16_Timers_Array_Complex on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.6.0
+ESP32_C3_TimerInterrupt v1.7.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 1, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -511,7 +512,7 @@ The following is the sample terminal output when running example [TimerInterrupt
 
 ```
 Starting TimerInterruptTest on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.6.0
+ESP32_C3_TimerInterrupt v1.7.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -544,7 +545,7 @@ The following is the sample terminal output when running example [Change_Interva
 
 ```
 Starting Change_Interval on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.6.0
+ESP32_C3_TimerInterrupt v1.7.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -582,7 +583,7 @@ The following is the sample terminal output when running example [Argument_None]
 
 ```
 Starting Argument_None on ESP32C3_DEV
-ESP32_C3_TimerInterrupt v1.6.0
+ESP32_C3_TimerInterrupt v1.7.0
 CPU Frequency = 160 MHz
 [TISR] ESP32_C3_TimerInterrupt: _timerNo = 0, TIM_CLOCK_FREQ = 1000000.00
 [TISR] TIMER_BASE_CLK = 80000000, TIMER_DIVIDER = 80
@@ -650,7 +651,9 @@ Submit issues to: [ESP32_C3_TimerInterrupt issues](https://github.com/khoih-prog
  8. Avoid deprecated functions.
  9. Optimize library code by using `reference-passing` instead of `value-passing`
 10. Suppress errors and warnings for new ESP32 core v2.0.4+
-
+11. Add support to 
+  - ESP32_C3 : LOLIN_C3_MINI, DFROBOT_BEETLE_ESP32_C3, ADAFRUIT_QTPY_ESP32C3, AirM2M_CORE_ESP32C3, XIAO_ESP32C3
+  
 ---
 ---
 

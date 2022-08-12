@@ -13,6 +13,7 @@
 ## Table of Contents
 
 * [Changelog](#changelog)
+  * [Releases v1.7.0](#releases-v170)
   * [Releases v1.6.0](#releases-v160)
   * [Releases v1.5.0](#releases-v150)
   * [Releases v1.4.0](#releases-v140)
@@ -21,6 +22,11 @@
 ---
 
 ## Changelog
+
+### Releases v1.7.0
+
+1. Add support to 
+  - ESP32_C3 : LOLIN_C3_MINI, DFROBOT_BEETLE_ESP32_C3, ADAFRUIT_QTPY_ESP32C3, AirM2M_CORE_ESP32C3, XIAO_ESP32C3
 
 ### Releases v1.6.0
 
