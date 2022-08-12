@@ -37,10 +37,6 @@
    written
 */
 
-#if !( ARDUINO_ESP32C3_DEV )
-  #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
-#endif
-
 //These define's must be placed at the beginning before #include "TimerInterrupt.h"
 // Don't define TIMER_INTERRUPT_DEBUG > 2. Only for special ISR debugging only. Can hang the system.
 #define TIMER_INTERRUPT_DEBUG      1

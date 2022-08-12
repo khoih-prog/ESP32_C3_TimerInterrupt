@@ -37,11 +37,6 @@
    written
 */
 
-#if !( ARDUINO_ESP32C3_DEV )
-  #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
-#endif
-
-
 // These define's must be placed at the beginning before #include "ESP32TimerInterrupt.h"
 // _TIMERINTERRUPT_LOGLEVEL_ from 0 to 4
 // Don't define _TIMERINTERRUPT_LOGLEVEL_ > 0. Only for special ISR debugging only. Can hang the system.

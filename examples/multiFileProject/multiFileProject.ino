@@ -20,10 +20,6 @@
 
 // To demo how to include files in multi-file Projects
 
-#if !( ARDUINO_ESP32C3_DEV )
-  #error This code is intended to run on the ESP32_C3 platform! Please check your Tools->Board setting.
-#endif
-
 #include "multiFileProject.h"
 
 // Can be included as many times as necessary, without `Multiple Definitions` Linker Error
