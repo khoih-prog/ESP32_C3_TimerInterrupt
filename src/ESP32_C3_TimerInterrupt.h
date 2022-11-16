@@ -25,7 +25,7 @@
   Based on BlynkTimer.h
   Author: Volodymyr Shymanskyy
 
-  Version: 1.7.0
+  Version: 1.8.0
 
   Version Modified By   Date      Comments
   ------- -----------  ---------- -----------
@@ -33,6 +33,7 @@
   1.5.0   K.Hoang      23/01/2022 Avoid deprecated functions. Fix `multiple-definitions` linker error
   1.6.0   K Hoang      10/08/2022 Suppress errors and warnings for new ESP32 core
   1.7.0   K Hoang      11/08/2022 Suppress warnings and add support for more ESP32_C3 boards
+  1.8.0   K Hoang      16/11/2022 Fix doubled time for ESP32_C3
 *****************************************************************************************************************************/
 
 #pragma once
@@ -42,19 +43,19 @@
 
 #if !( defined(ARDUINO_ESP32C3_DEV) || defined(ARDUINO_LOLIN_C3_MINI) || defined(ARDUINO_ADAFRUIT_QTPY_ESP32C3) || \
        defined(ARDUINO_AirM2M_CORE_ESP32C3) || defined(ARDUINO_XIAO_ESP32C3) )
-  #error This code is intended to run on the ESP32-C3 platform! Please check your Tools->Board setting.
+#error This code is intended to run on the ESP32-C3 platform! Please check your Tools->Board setting.
 #else
-  #define USING_ESP32_C3_TIMER_INTERRUPT        true  
+#define USING_ESP32_C3_TIMER_INTERRUPT        true
 #endif
 
 #ifndef ESP32_C3_TIMER_INTERRUPT_VERSION
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.7.0"
-  
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION            "ESP32_C3_TimerInterrupt v1.8.0"
+
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_MAJOR      1
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      7
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_MINOR      8
   #define ESP32_C3_TIMER_INTERRUPT_VERSION_PATCH      0
 
-  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1007000  
+  #define ESP32_C3_TIMER_INTERRUPT_VERSION_INT        1008000
 #endif
 
 #ifndef TIMER_INTERRUPT_DEBUG
@@ -76,89 +77,89 @@
 /*
   //ESP32 core v1.0.6, hw_timer_t defined in esp32/tools/sdk/include/driver/driver/timer.h:
 
-  #define TIMER_BASE_CLK   (APB_CLK_FREQ)  //Frequency of the clock on the input of the timer groups 
+  #define TIMER_BASE_CLK   (APB_CLK_FREQ)  //Frequency of the clock on the input of the timer groups
 
 
- //@brief Selects a Timer-Group out of 2 available groups
- 
-typedef enum
-{
+  //@brief Selects a Timer-Group out of 2 available groups
+
+  typedef enum
+  {
   TIMER_GROUP_0 = 0, // Hw timer group 0
   TIMER_GROUP_1 = 1, // Hw timer group 1
   TIMER_GROUP_MAX,
-} timer_group_t;
+  } timer_group_t;
 
 
- //@brief Select a hardware timer from timer groups
- 
-typedef enum 
-{
+  //@brief Select a hardware timer from timer groups
+
+  typedef enum
+  {
   TIMER_0 = 0, // Select timer0 of GROUPx
   TIMER_1 = 1, // Select timer1 of GROUPx
   TIMER_MAX,
-} timer_idx_t;
+  } timer_idx_t;
 
 
- //@brief Decides the direction of counter
- 
-typedef enum 
-{
+  //@brief Decides the direction of counter
+
+  typedef enum
+  {
   TIMER_COUNT_DOWN = 0, //Descending Count from cnt.high|cnt.low
   TIMER_COUNT_UP = 1,   //Ascending Count from Zero
   TIMER_COUNT_MAX
-} timer_count_dir_t;
+  } timer_count_dir_t;
 
 
- //@brief Decides whether timer is on or paused
- 
-typedef enum 
-{
+  //@brief Decides whether timer is on or paused
+
+  typedef enum
+  {
   TIMER_PAUSE = 0,      //Pause timer counter
   TIMER_START = 1,      //Start timer counter
-} timer_start_t;
+  } timer_start_t;
 
 
- //@brief Decides whether to enable alarm mode
- 
-typedef enum 
-{
+  //@brief Decides whether to enable alarm mode
+
+  typedef enum
+  {
   TIMER_ALARM_DIS = 0,  //Disable timer alarm
   TIMER_ALARM_EN = 1,   //Enable timer alarm
   TIMER_ALARM_MAX
-} timer_alarm_t;
+  } timer_alarm_t;
 
 
- //@brief Select interrupt type if running in alarm mode.
- 
-typedef enum 
-{
+  //@brief Select interrupt type if running in alarm mode.
+
+  typedef enum
+  {
   TIMER_INTR_LEVEL = 0,  //Interrupt mode: level mode
   //TIMER_INTR_EDGE = 1, //Interrupt mode: edge mode, Not supported Now
   TIMER_INTR_MAX
-} timer_intr_mode_t;
+  } timer_intr_mode_t;
 
 
- //@brief Select if Alarm needs to be loaded by software or automatically reload by hardware.
- 
-typedef enum 
-{
+  //@brief Select if Alarm needs to be loaded by software or automatically reload by hardware.
+
+  typedef enum
+  {
   TIMER_AUTORELOAD_DIS = 0,  //Disable auto-reload: hardware will not load counter value after an alarm event
   TIMER_AUTORELOAD_EN = 1,   //Enable auto-reload: hardware will load counter value after an alarm event
   TIMER_AUTORELOAD_MAX,
-} timer_autoreload_t;
+  } timer_autoreload_t;
 
 
- //@brief Data structure with timer's configuration settings
- 
-typedef struct 
-{
-  bool alarm_en;                    //Timer alarm enable 
-  bool counter_en;                  //Counter enable 
-  timer_intr_mode_t intr_type;      //Interrupt mode 
-  timer_count_dir_t counter_dir;    //Counter direction  
-  bool auto_reload;                 //Timer auto-reload 
-  uint32_t divider;                 //Counter clock divider. The divider's range is from from 2 to 65536. 
-} timer_config_t;
+  //@brief Data structure with timer's configuration settings
+
+  typedef struct
+  {
+  bool alarm_en;                    //Timer alarm enable
+  bool counter_en;                  //Counter enable
+  timer_intr_mode_t intr_type;      //Interrupt mode
+  timer_count_dir_t counter_dir;    //Counter direction
+  bool auto_reload;                 //Timer auto-reload
+  uint32_t divider;                 //Counter clock divider. The divider's range is from from 2 to 65536.
+  } timer_config_t;
 
 */
 
@@ -213,11 +214,14 @@ typedef struct
   //timer_autoreload_t  auto_reload;
 } timer_info_t;
 
+// Warning: TIMER_SRC_CLK_XTAL only good for ESP32
+// Use TIMER_SRC_CLK_APB for ESP32_C3, ESP32_S2 and ESP32_S3
+
 class ESP32TimerInterrupt
 {
   private:
-  
-    timer_config_t stdConfig = 
+
+    timer_config_t stdConfig =
     {
       .alarm_en     = TIMER_ALARM_EN,       //enable timer alarm
       .counter_en   = TIMER_START,          //starts counting counter once timer_init called
@@ -226,39 +230,39 @@ class ESP32TimerInterrupt
       .auto_reload  = TIMER_AUTORELOAD_EN,  //reloads counter automatically
       .divider      = TIMER_DIVIDER,
 #if SOC_TIMER_GROUP_SUPPORT_XTAL
-      .clk_src      = TIMER_SRC_CLK_XTAL    //Use XTAL as source clock
-#endif      
+      .clk_src      = TIMER_SRC_CLK_APB    //Use XTAL as source clock
+#endif
     };
 
     timer_idx_t       _timerIndex;
     timer_group_t     _timerGroup;
     uint32_t          interruptFlag;        // either TIMER_INTR_T0 or TIMER_INTR_T1
-    
+
     uint8_t           _timerNo;
 
     esp32_timer_callback _callback;         // pointer to the callback function
-    
+
     float             TIM_CLOCK_FREQ;       // Timer Clock
     float             _frequency;           // Timer frequency
     uint64_t          _timerCount;          // count to activate timer
-    
+
     //xQueueHandle      s_timer_queue;
 
   public:
 
     ESP32TimerInterrupt(const uint8_t& timerNo)
-    {     
+    {
       _callback = NULL;
-        
+
       if (timerNo < MAX_ESP32_NUM_TIMERS)
       {
         _timerNo  = timerNo;
-      
+
         // Always using TIMER_INTR_T0
         _timerIndex = (timer_idx_t)   ( (uint32_t) 0 );
-        
+
         // timerNo == 0 => Group 0, timerNo == 1 => Group 1
-        _timerGroup = (timer_group_t) ( (uint32_t) timerNo);     
+        _timerGroup = (timer_group_t) ( (uint32_t) timerNo);
       }
       else
       {
@@ -271,44 +275,45 @@ class ESP32TimerInterrupt
     bool setFrequency(const float& frequency, esp32_timer_callback callback)
     {
       if (_timerNo < MAX_ESP32_NUM_TIMERS)
-      {      
+      {
         // select timer frequency is 1MHz for better accuracy. We don't use 16-bit prescaler for now.
         // Will use later if very low frequency is needed.
         _frequency = frequency;
         TIM_CLOCK_FREQ  = TIMER_BASE_CLK / TIMER_DIVIDER;   //1000000;
         _timerCount = (uint64_t) TIM_CLOCK_FREQ / frequency;
         // count up
-        
+
         TISR_LOGWARN3(F("ESP32_C3_TimerInterrupt: _timerNo = "), _timerNo, F(", TIM_CLOCK_FREQ = "), TIM_CLOCK_FREQ);
         TISR_LOGWARN3(F("TIMER_BASE_CLK = "), TIMER_BASE_CLK, F(", TIMER_DIVIDER = "), TIMER_DIVIDER);
         TISR_LOGWARN3(F("_timerIndex = "), _timerIndex, F(", _timerGroup = "), _timerGroup);
-        TISR_LOGWARN5(F("Timer freq = "), _frequency, F(", _count = "), (uint32_t) (_timerCount >> 32) , F("-"), (uint32_t) (_timerCount));
+        TISR_LOGWARN5(F("Timer freq = "), _frequency, F(", _count = "), (uint32_t) (_timerCount >> 32), F("-"),
+                      (uint32_t) (_timerCount));
         TISR_LOGWARN1(F("timer_set_alarm_value = "), TIMER_SCALE / frequency);
 
         timer_init(_timerGroup, _timerIndex, &stdConfig);
-        
+
         // Counter value to 0 => counting up to alarm value as .counter_dir == TIMER_COUNT_UP
-        timer_set_counter_value(_timerGroup, _timerIndex , 0x00000000ULL);       
-        
+        timer_set_counter_value(_timerGroup, _timerIndex, 0x00000000ULL);
+
         timer_set_alarm_value(_timerGroup, _timerIndex, TIMER_SCALE / frequency);
-               
+
         // enable interrupts for _timerGroup, _timerIndex
         timer_enable_intr(_timerGroup, _timerIndex);
-        
+
         _callback = callback;
-        
-        // Register the ISR handler       
+
+        // Register the ISR handler
         // If the intr_alloc_flags value ESP_INTR_FLAG_IRAM is set, the handler function must be declared with IRAM_ATTR attribute
         // and can only call functions in IRAM or ROM. It cannot call other timer APIs.
-       //timer_isr_register(_timerGroup, _timerIndex, _callback, (void *) (uint32_t) _timerNo, ESP_INTR_FLAG_IRAM, NULL);
+        //timer_isr_register(_timerGroup, _timerIndex, _callback, (void *) (uint32_t) _timerNo, ESP_INTR_FLAG_IRAM, NULL);
         timer_isr_callback_add(_timerGroup, _timerIndex, _callback, (void *) (uint32_t) _timerNo, 0);
 
         timer_start(_timerGroup, _timerIndex);
-  
+
         return true;
       }
       else
-      {   
+      {
         TISR_LOGERROR(F("Error. Timer must be 0-1"));
 
         return false;
@@ -335,24 +340,24 @@ class ESP32TimerInterrupt
     }
 
     void detachInterrupt()
-    { 
+    {
       timer_group_intr_disable(_timerGroup, TIMER_INTR_T0);
     }
 
     void disableTimer()
-    {  
+    {
       timer_group_intr_disable(_timerGroup, TIMER_INTR_T0);
     }
 
     // Duration (in milliseconds). Duration = 0 or not specified => run indefinitely
     void reattachInterrupt()
-    { 
-      timer_group_intr_enable(_timerGroup, TIMER_INTR_T0); 
+    {
+      timer_group_intr_enable(_timerGroup, TIMER_INTR_T0);
     }
 
     // Duration (in milliseconds). Duration = 0 or not specified => run indefinitely
     void enableTimer()
-    { 
+    {
       timer_group_intr_enable(_timerGroup, TIMER_INTR_T0);
     }
 
@@ -365,7 +370,7 @@ class ESP32TimerInterrupt
     // Just reconnect clock source, start current count from 0
     void restartTimer()
     {
-      timer_set_counter_value(_timerGroup, _timerIndex , 0x00000000ULL);
+      timer_set_counter_value(_timerGroup, _timerIndex, 0x00000000ULL);
       timer_start(_timerGroup, _timerIndex);
     }
 
@@ -373,7 +378,7 @@ class ESP32TimerInterrupt
     {
       return _timerIndex;
     };
-    
+
     int8_t getTimerGroup() __attribute__((always_inline))
     {
       return _timerGroup;

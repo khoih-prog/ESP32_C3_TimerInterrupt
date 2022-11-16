@@ -28,12 +28,12 @@
 // To be included only in main(), .ino with setup() to avoid `Multiple Definitions` Linker Error
 #include "ESP32_C3_ISR_Timer.h"
 
-void setup() 
+void setup()
 {
-  // put your setup code here, to run once:
+	// put your setup code here, to run once:
 }
 
-void loop() 
+void loop()
 {
-  // put your main code here, to run repeatedly:
+	// put your main code here, to run repeatedly:
 }
